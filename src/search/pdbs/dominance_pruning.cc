@@ -79,20 +79,20 @@ class Pruner {
     bool is_pattern_dominated(int pattern_id) const {
         /*
           Check if the pattern with the given pattern_id is dominated
-          by the current pattern collection.
+          by the current pattern collection. Empty patterns are considered
+          dominated by any (non-empty) pattern collection.
         */
         const vector<int> &pattern = patterns[pattern_id];
-        if (pattern.empty()) {
-            return true;
-        }
-        int collection_pattern = pattern_index[pattern[0]];
-        if (collection_pattern == -1) {
-            return false;
-        }
-        int pattern_size = pattern.size();
-        for (int i = 1; i < pattern_size; ++i) {
-            if (pattern_index[pattern[i]] != collection_pattern) {
+        if (!pattern.empty()) {
+            int collection_pattern = pattern_index[pattern[0]];
+            if (collection_pattern == -1) {
                 return false;
+            }
+            int pattern_size = pattern.size();
+            for (int i = 1; i < pattern_size; ++i) {
+                if (pattern_index[pattern[i]] != collection_pattern) {
+                    return false;
+                }
             }
         }
         return true;
