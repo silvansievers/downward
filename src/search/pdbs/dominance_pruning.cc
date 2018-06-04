@@ -82,7 +82,9 @@ class Pruner {
           by the current pattern collection.
         */
         const vector<int> &pattern = patterns[pattern_id];
-        assert(!pattern.empty());
+        if (pattern.empty()) {
+            return true;
+        }
         int collection_pattern = pattern_index[pattern[0]];
         if (collection_pattern == -1) {
             return false;
