@@ -20,7 +20,7 @@ PatternCollectionInformation::PatternCollectionInformation(
       pdbs(nullptr),
       max_additive_subsets(nullptr) {
     assert(patterns);
-    validate_and_normalize_patterns(task_proxy, *patterns);
+    assert(pattern_collection_is_valid(*patterns));
 }
 
 bool PatternCollectionInformation::information_is_valid() const {

@@ -19,8 +19,9 @@ PatternCollectionGeneratorManual::PatternCollectionGeneratorManual(const Options
 
 PatternCollectionInformation PatternCollectionGeneratorManual::generate(
     const shared_ptr<AbstractTask> &task) {
-    cout << "Manual pattern collection: " << *patterns << endl;
     TaskProxy task_proxy(*task);
+    validate_and_normalize_pattern_collection(task_proxy, *patterns);
+    cout << "Manual pattern collection: " << *patterns << endl;
     return PatternCollectionInformation(task_proxy, patterns);
 }
 
