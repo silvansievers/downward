@@ -20,6 +20,7 @@ extern void validate_and_normalize_pattern_collection(
 
 /*
   A pattern collection is valid if:
+  - it is non-empty,
   - all of its patterns are valid, i.e., they are non-empty and do not contain
     duplicate variables, and
   - it does not contain duplicate patterns.

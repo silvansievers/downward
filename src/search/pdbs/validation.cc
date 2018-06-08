@@ -75,6 +75,9 @@ bool pattern_is_valid(const Pattern &pattern) {
 }
 
 bool pattern_collection_is_valid(const PatternCollection &patterns) {
+    if (patterns.empty()) {
+        return false;
+    }
     PatternCollection patterns_copy(patterns);
     for (Pattern &pattern : patterns_copy) {
         if (!pattern_is_valid(pattern)) {
