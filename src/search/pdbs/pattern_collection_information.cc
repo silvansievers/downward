@@ -4,6 +4,8 @@
 #include "max_additive_pdb_sets.h"
 #include "validation.h"
 
+#include "../utils/timer.h"
+
 #include <algorithm>
 #include <cassert>
 #include <unordered_set>
@@ -45,12 +47,12 @@ bool PatternCollectionInformation::information_is_valid() const {
                 pdbs_in_union.insert(pdb.get());
             }
         }
-        unordered_set<Pattern> patterns_in_union;
+        utils::HashSet<Pattern> patterns_in_union;
         for (PatternDatabase *pdb : pdbs_in_union) {
             patterns_in_union.insert(pdb->get_pattern());
         }
-        unordered_set<Pattern> patterns_in_list(patterns->begin(),
-                                                patterns->end());
+        utils::HashSet<Pattern> patterns_in_list(patterns->begin(),
+                                                 patterns->end());
         if (patterns_in_list != patterns_in_union) {
             return false;
         }
@@ -70,21 +72,28 @@ bool PatternCollectionInformation::information_is_valid() const {
 void PatternCollectionInformation::create_pdbs_if_missing() {
     assert(patterns);
     if (!pdbs) {
+        utils::Timer timer;
+        cout << "Computing PDBs for pattern collection..." << endl;
         pdbs = make_shared<PDBCollection>();
         for (const Pattern &pattern : *patterns) {
             shared_ptr<PatternDatabase> pdb =
                 make_shared<PatternDatabase>(task_proxy, pattern);
             pdbs->push_back(pdb);
         }
+        cout << "Done computing PDBs for pattern collection: " << timer << endl;
     }
 }
 
 void PatternCollectionInformation::create_max_additive_subsets_if_missing() {
     if (!max_additive_subsets) {
         create_pdbs_if_missing();
+        utils::Timer timer;
+        cout << "Computing max additive subsets for pattern collection..." << endl;
         assert(pdbs);
         VariableAdditivity are_additive = compute_additive_vars(task_proxy);
         max_additive_subsets = compute_max_additive_subsets(*pdbs, are_additive);
+        cout << "Done computing max additive subsets for pattern collection: "
+             << timer << endl;
     }
 }
 
@@ -99,7 +108,7 @@ void PatternCollectionInformation::set_max_additive_subsets(
     assert(information_is_valid());
 }
 
-shared_ptr<PatternCollection> PatternCollectionInformation::get_patterns() {
+shared_ptr<PatternCollection> PatternCollectionInformation::get_patterns() const {
     assert(patterns);
     return patterns;
 }

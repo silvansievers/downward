@@ -20,12 +20,12 @@ CanonicalPDBs get_canonical_pdbs_from_options(
     shared_ptr<PatternCollectionGenerator> pattern_generator =
         opts.get<shared_ptr<PatternCollectionGenerator>>("patterns");
     utils::Timer timer;
+    cout << "Initializing canonical PDB heuristic..." << endl;
     PatternCollectionInformation pattern_collection_info =
         pattern_generator->generate(task);
     shared_ptr<PDBCollection> pdbs = pattern_collection_info.get_pdbs();
     shared_ptr<MaxAdditivePDBSubsets> max_additive_subsets =
         pattern_collection_info.get_max_additive_subsets();
-    cout << "PDB collection construction time: " << timer << endl;
 
     double max_time_dominance_pruning = opts.get<double>("max_time_dominance_pruning");
     if (max_time_dominance_pruning > 0.0) {
@@ -33,6 +33,17 @@ CanonicalPDBs get_canonical_pdbs_from_options(
         max_additive_subsets = prune_dominated_subsets(
             *pdbs, *max_additive_subsets, num_variables, max_time_dominance_pruning);
     }
+
+    /*
+      Once we have better data structures for storing and passing pattern
+      collections, we should also print the final pattern collection here
+      like in dump_pattern_collection_generation_statistics. To this end,
+      the dominance pruning code would need to not only return the max
+      additive subsets, but the list of patterns/PDBs together with the max
+      subsets, possibly as a list of list of indices into the pattern/PDB
+      collection.
+    */
+    cout << "Canonical PDB heuristic computation time: " << timer << endl;
     return CanonicalPDBs(max_additive_subsets);
 }
 
@@ -66,7 +77,7 @@ void add_canonical_pdbs_options_to_parser(options::OptionParser &parser) {
         Bounds("0.0", "infinity"));
 }
 
-static Heuristic *_parse(OptionParser &parser) {
+static shared_ptr<Heuristic> _parse(OptionParser &parser) {
     parser.document_synopsis(
         "Canonical PDB",
         "The canonical pattern database heuristic is calculated as follows. "
@@ -96,8 +107,8 @@ static Heuristic *_parse(OptionParser &parser) {
     if (parser.dry_run())
         return nullptr;
 
-    return new CanonicalPDBsHeuristic(opts);
+    return make_shared<CanonicalPDBsHeuristic>(opts);
 }
 
-static Plugin<Heuristic> _plugin("cpdbs", _parse);
+static Plugin<Evaluator> _plugin("cpdbs", _parse, "heuristics_pdb");
 }

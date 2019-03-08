@@ -3,8 +3,6 @@
 #include "refinement_hierarchy.h"
 #include "utils.h"
 
-#include "../task_proxy.h"
-
 #include <algorithm>
 #include <cassert>
 #include <unordered_set>
@@ -12,20 +10,16 @@
 using namespace std;
 
 namespace cegar {
-const int AbstractSearchInfo::UNDEFINED_OPERATOR = -1;
-
-AbstractState::AbstractState(const Domains &domains, Node *node)
-    : domains(domains),
-      node(node) {
+AbstractState::AbstractState(int state_id, NodeID node_id, Domains &&domains)
+    : state_id(state_id),
+      node_id(node_id),
+      domains(move(domains)) {
 }
 
 AbstractState::AbstractState(AbstractState &&other)
-    : domains(move(other.domains)),
-      node(move(other.node)),
-      incoming_transitions(move(other.incoming_transitions)),
-      outgoing_transitions(move(other.outgoing_transitions)),
-      loops(move(other.loops)),
-      search_info(move(other.search_info)) {
+    : state_id(other.state_id),
+      node_id(other.node_id),
+      domains(move(other.domains)) {
 }
 
 int AbstractState::count(int var) const {
@@ -36,43 +30,12 @@ bool AbstractState::contains(int var, int value) const {
     return domains.test(var, value);
 }
 
-void AbstractState::add_outgoing_transition(int op_id, AbstractState *target) {
-    assert(target != this);
-    outgoing_transitions.emplace_back(op_id, target);
-}
-
-void AbstractState::add_incoming_transition(int op_id, AbstractState *src) {
-    assert(src != this);
-    incoming_transitions.emplace_back(op_id, src);
-}
-
-void AbstractState::add_loop(int op_id) {
-    loops.push_back(op_id);
-}
-
-void AbstractState::remove_non_looping_transition(
-    Transitions &transitions, int op_id, AbstractState *other) {
-    auto pos = find(
-        transitions.begin(), transitions.end(), Transition(op_id, other));
-    assert(pos != transitions.end());
-    swap(*pos, transitions.back());
-    transitions.pop_back();
-}
-
-void AbstractState::remove_incoming_transition(int op_id, AbstractState *other) {
-    remove_non_looping_transition(incoming_transitions, op_id, other);
-}
-
-void AbstractState::remove_outgoing_transition(int op_id, AbstractState *other) {
-    remove_non_looping_transition(outgoing_transitions, op_id, other);
-}
-
-pair<AbstractState *, AbstractState *> AbstractState::split(
+pair<Domains, Domains> AbstractState::split_domain(
     int var, const vector<int> &wanted) {
     int num_wanted = wanted.size();
     utils::unused_variable(num_wanted);
     // We can only split states in the refinement hierarchy (not artificial states).
-    assert(node);
+    assert(node_id != UNDEFINED);
     // We can only refine for variables with at least two values.
     assert(num_wanted >= 1);
     assert(domains.count(var) > num_wanted);
@@ -93,25 +56,10 @@ pair<AbstractState *, AbstractState *> AbstractState::split(
     }
     assert(v1_domains.count(var) == domains.count(var) - num_wanted);
     assert(v2_domains.count(var) == num_wanted);
-
-    // Update refinement hierarchy.
-    pair<Node *, Node *> new_nodes = node->split(var, wanted);
-
-    AbstractState *v1 = new AbstractState(v1_domains, new_nodes.first);
-    AbstractState *v2 = new AbstractState(v2_domains, new_nodes.second);
-
-    assert(this->is_more_general_than(*v1));
-    assert(this->is_more_general_than(*v2));
-
-    // Since h-values only increase we can assign the h-value to the children.
-    int h = node->get_h_value();
-    v1->set_h_value(h);
-    v2->set_h_value(h);
-
-    return make_pair(v1, v2);
+    return make_pair(v1_domains, v2_domains);
 }
 
-AbstractState AbstractState::regress(OperatorProxy op) const {
+AbstractState AbstractState::regress(const OperatorProxy &op) const {
     Domains regressed_domains = domains;
     for (EffectProxy effect : op.get_effects()) {
         int var_id = effect.get_fact().get_variable().get_id();
@@ -121,7 +69,7 @@ AbstractState AbstractState::regress(OperatorProxy op) const {
         int var_id = precondition.get_variable().get_id();
         regressed_domains.set_single_value(var_id, precondition.get_value());
     }
-    return AbstractState(regressed_domains, nullptr);
+    return AbstractState(UNDEFINED, UNDEFINED, move(regressed_domains));
 }
 
 bool AbstractState::domains_intersect(const AbstractState *other, int var) const {
@@ -136,33 +84,37 @@ bool AbstractState::includes(const State &concrete_state) const {
     return true;
 }
 
-bool AbstractState::is_more_general_than(const AbstractState &other) const {
+bool AbstractState::includes(const vector<FactPair> &facts) const {
+    for (const FactPair &fact : facts) {
+        if (!domains.test(fact.var, fact.value))
+            return false;
+    }
+    return true;
+}
+
+bool AbstractState::includes(const AbstractState &other) const {
     return domains.is_superset_of(other.domains);
 }
 
-void AbstractState::set_h_value(int new_h) {
-    assert(node);
-    node->increase_h_value_to(new_h);
+int AbstractState::get_id() const {
+    return state_id;
 }
 
-int AbstractState::get_h_value() const {
-    assert(node);
-    return node->get_h_value();
+NodeID AbstractState::get_node_id() const {
+    return node_id;
 }
 
 AbstractState *AbstractState::get_trivial_abstract_state(
-    const TaskProxy &task_proxy, Node *root_node) {
-    AbstractState *abstract_state = new AbstractState(
-        Domains(get_domain_sizes(task_proxy)), root_node);
-    return abstract_state;
+    const vector<int> &domain_sizes) {
+    return new AbstractState(0, 0, Domains(domain_sizes));
 }
 
-AbstractState AbstractState::get_abstract_state(
-    const TaskProxy &task_proxy, const ConditionsProxy &conditions) {
-    Domains domains(get_domain_sizes(task_proxy));
+AbstractState AbstractState::get_cartesian_set(
+    const vector<int> &domain_sizes, const ConditionsProxy &conditions) {
+    Domains domains(domain_sizes);
     for (FactProxy condition : conditions) {
         domains.set_single_value(condition.get_variable().get_id(), condition.get_value());
     }
-    return AbstractState(domains, nullptr);
+    return AbstractState(UNDEFINED, UNDEFINED, move(domains));
 }
 }

@@ -20,7 +20,7 @@ void validate_and_normalize_pattern(
     */
     if (pattern.empty()) {
         cerr << "Pattern is empty" <<endl;
-        utils::exit_with(ExitCode::INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
     sort(pattern.begin(), pattern.end());
     auto it = unique(pattern.begin(), pattern.end());
@@ -31,12 +31,12 @@ void validate_and_normalize_pattern(
     }
     if (pattern.front() < 0) {
         cerr << "Variable number too low in pattern" << endl;
-        utils::exit_with(ExitCode::INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
     int num_variables = task_proxy.get_variables().size();
     if (pattern.back() >= num_variables) {
         cerr << "Variable number too high in pattern" << endl;
-        utils::exit_with(ExitCode::INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
 }
 
@@ -49,7 +49,7 @@ void validate_and_normalize_pattern_collection(
     */
     if (patterns.empty()) {
         cerr << "Pattern collection is empty" <<endl;
-        utils::exit_with(ExitCode::INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
     for (Pattern &pattern : patterns)
         validate_and_normalize_pattern(task_proxy, pattern);
