@@ -1,5 +1,7 @@
 #include "validation.h"
 
+#include "pattern_collection_information.h"
+
 #include "../task_proxy.h"
 
 #include "../utils/system.h"
@@ -16,12 +18,8 @@ void validate_and_normalize_pattern(
     /*
       - Sort by variable number and remove duplicate variables.
       - Warn if duplicate variables exist and remove them.
-      - Error if patterns are empty or contain out-of-range variable numbers.
+      - Error if the pattern contains out-of-range variable numbers.
     */
-    if (pattern.empty()) {
-        cerr << "Pattern is empty" <<endl;
-        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
-    }
     sort(pattern.begin(), pattern.end());
     auto it = unique(pattern.begin(), pattern.end());
     if (it != pattern.end()) {
@@ -31,30 +29,43 @@ void validate_and_normalize_pattern(
     }
     if (pattern.front() < 0) {
         cerr << "Variable number too low in pattern" << endl;
-        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_CRITICAL_ERROR);
     }
     int num_variables = task_proxy.get_variables().size();
     if (pattern.back() >= num_variables) {
         cerr << "Variable number too high in pattern" << endl;
-        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_CRITICAL_ERROR);
     }
 }
 
 void validate_and_normalize_pattern_collection(
-    const TaskProxy &task_proxy, PatternCollection &patterns) {
+    const TaskProxy &task_proxy, PatternCollectionInformation &pci) {
     /*
-      - Error if the collection is empty.
+      TODO: this breaks validity of pattern collection information if pdbs
+      have been set.
+    */
+    PatternCollection &patterns = pci.get_patterns();
+    /*
+      - Remove empty patterns.
       - Validate and normalize each pattern (see there).
       - Warn if duplicate patterns exist and remove them.
     */
     if (patterns.empty()) {
         cerr << "Pattern collection is empty" <<endl;
-        utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
+        utils::exit_with(ExitCode::SEARCH_CRITICAL_ERROR);
     }
-    for (Pattern &pattern : patterns)
-        validate_and_normalize_pattern(task_proxy, pattern);
+    PatternCollection::iterator it = patterns.begin();
+    while (it != patterns.end()) {
+        Pattern &pattern = *it;
+        if (pattern.empty()) {
+            it = patterns.erase(it);
+        } else {
+            validate_and_normalize_pattern(task_proxy, pattern);
+            ++it;
+        }
+    }
     sort(patterns.begin(), patterns.end());
-    auto it = unique(patterns.begin(), patterns.end());
+    it = unique(patterns.begin(), patterns.end());
     if (it != patterns.end()) {
         patterns.erase(it, patterns.end());
         cout << "Warning: duplicate patterns have been removed" << endl;

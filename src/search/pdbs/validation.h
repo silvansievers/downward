@@ -6,6 +6,8 @@
 class TaskProxy;
 
 namespace pdbs {
+class PatternCollectionInformation;
+
 /*
   Validation and normalization of patterns and pattern collections is
   intended for user input. The given pattern or pattern collection has to be
@@ -16,7 +18,7 @@ namespace pdbs {
 extern void validate_and_normalize_pattern(
     const TaskProxy &task_proxy, Pattern &pattern);
 extern void validate_and_normalize_pattern_collection(
-    const TaskProxy &task_proxy, PatternCollection &patterns);
+    const TaskProxy &task_proxy, PatternCollectionInformation &pci);
 
 /*
   A pattern collection is valid if:

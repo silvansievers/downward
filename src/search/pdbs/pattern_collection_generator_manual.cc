@@ -20,9 +20,10 @@ PatternCollectionGeneratorManual::PatternCollectionGeneratorManual(const Options
 PatternCollectionInformation PatternCollectionGeneratorManual::generate(
     const shared_ptr<AbstractTask> &task) {
     TaskProxy task_proxy(*task);
-    validate_and_normalize_pattern_collection(task_proxy, *patterns);
-    cout << "Manual pattern collection: " << *patterns << endl;
-    return PatternCollectionInformation(task_proxy, patterns);
+    PatternCollectionInformation pci(task_proxy, patterns);
+    validate_and_normalize_pattern_collection(task_proxy, pci);
+    cout << "Manual pattern collection: " << pci.get_shared_patterns() << endl;
+    return pci;
 }
 
 static shared_ptr<PatternCollectionGenerator> _parse(OptionParser &parser) {

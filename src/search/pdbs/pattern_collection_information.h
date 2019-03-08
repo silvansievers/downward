@@ -41,7 +41,9 @@ public:
         return task_proxy;
     }
 
-    std::shared_ptr<PatternCollection> get_patterns() const;
+    // TODO: only have one method here. Get rid of const for shared_ptr?
+    PatternCollection &get_patterns();
+    std::shared_ptr<PatternCollection> get_shared_patterns() const;
     std::shared_ptr<PDBCollection> get_pdbs();
     std::shared_ptr<MaxAdditivePDBSubsets> get_max_additive_subsets();
 };

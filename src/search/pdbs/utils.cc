@@ -44,7 +44,7 @@ void dump_pattern_collection_generation_statistics(
     utils::Duration runtime,
     const PatternCollectionInformation &pci,
     bool dump_collection) {
-    const PatternCollection &pattern_collection = *pci.get_patterns();
+    const PatternCollection &pattern_collection = *pci.get_shared_patterns();
     if (dump_collection) {
         cout << identifier << " collection: " << pattern_collection << endl;
     }
