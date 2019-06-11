@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace plugin_eager_wastar {
-static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
+static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
     parser.document_synopsis(
         "Eager weighted A* search",
         "");
@@ -52,5 +52,5 @@ static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
     }
 }
 
-static Plugin<SearchEngine> _plugin("eager_wastar", _parse);
+static Plugin<SearchEngineBuilder> _plugin("eager_wastar", _parse);
 }

@@ -71,6 +71,7 @@ fast_downward_plugin(
         plugin
         pruning_method
         search_engine
+        search_engine_builder
         search_node_info
         search_progress
         search_space
@@ -351,6 +352,7 @@ fast_downward_plugin(
     HELP "Eager search algorithm"
     SOURCES
         search_engines/eager_search
+        search_engines/eager_search_builder
     DEPENDS NULL_PRUNING_METHOD ORDERED_SET SUCCESSOR_GENERATOR
     DEPENDENCY_ONLY
 )
