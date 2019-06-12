@@ -54,9 +54,11 @@ fast_downward_plugin(
         evaluation_context
         evaluation_result
         evaluator
+        evaluator_builder
         evaluator_cache
         global_state
         heuristic
+        heuristic_builder
         open_list
         open_list_factory
         operator_cost
@@ -262,6 +264,7 @@ fast_downward_plugin(
     HELP "The g-evaluator"
     SOURCES
         evaluators/g_evaluator
+        evaluators/g_evaluator_builder
     DEPENDS EVALUATORS_PLUGIN_GROUP
 )
 
@@ -270,6 +273,7 @@ fast_downward_plugin(
     HELP "The combining evaluator"
     SOURCES
         evaluators/combining_evaluator
+        evaluators/combining_evaluator_builder
     DEPENDENCY_ONLY
 )
 
@@ -294,6 +298,7 @@ fast_downward_plugin(
     HELP "The weighted evaluator"
     SOURCES
         evaluators/weighted_evaluator
+        evaluators/weighted_evaluator_builder
     DEPENDS EVALUATORS_PLUGIN_GROUP
 )
 
@@ -302,6 +307,7 @@ fast_downward_plugin(
     HELP "The sum evaluator"
     SOURCES
         evaluators/sum_evaluator
+        evaluators/sum_evaluator_builder
     DEPENDS COMBINING_EVALUATOR EVALUATORS_PLUGIN_GROUP
 )
 
@@ -468,6 +474,7 @@ fast_downward_plugin(
     HELP "The 'blind search' heuristic"
     SOURCES
         heuristics/blind_search_heuristic
+        heuristics/blind_search_heuristic_builder
     DEPENDS TASK_PROPERTIES
 )
 

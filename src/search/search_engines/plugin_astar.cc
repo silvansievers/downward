@@ -1,6 +1,7 @@
 #include "eager_search_builder.h"
 #include "search_common.h"
 
+#include "../evaluator_builder.h"
 #include "../option_parser.h"
 #include "../plugin.h"
 
@@ -27,8 +28,8 @@ static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
         "--search eager(tiebreaking([sum([g(), h]), h], unsafe_pruning=false),\n"
         "               reopen_closed=true, f_eval=sum([g(), h]))\n"
         "```\n", true);
-    parser.add_option<shared_ptr<Evaluator>>("eval", "evaluator for h-value");
-    parser.add_option<shared_ptr<Evaluator>>(
+    parser.add_option<shared_ptr<EvaluatorBuilder>>("eval", "evaluator for h-value");
+    parser.add_option<shared_ptr<EvaluatorBuilder>>(
         "lazy_evaluator",
         "An evaluator that re-evaluates a state before it is expanded.",
         OptionParser::NONE);

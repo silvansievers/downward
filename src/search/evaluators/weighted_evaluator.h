@@ -15,7 +15,6 @@ class WeightedEvaluator : public Evaluator {
     int w;
 
 public:
-    explicit WeightedEvaluator(const options::Options &opts);
     WeightedEvaluator(const std::shared_ptr<Evaluator> &eval, int weight);
     virtual ~WeightedEvaluator() override;
 
