@@ -1,5 +1,6 @@
 #include "search_engine_builder.h"
 
+#include "operator_cost.h"
 #include "option_parser.h"
 #include "pruning_method.h"
 

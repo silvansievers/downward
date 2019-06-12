@@ -52,7 +52,7 @@ int main(int argc, const char **argv) {
         utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
 
-    unique_ptr<SearchEngine> engine = engine_builder->build();
+    shared_ptr<SearchEngine> engine = engine_builder->build();
 
     utils::Timer search_timer;
     engine->search();

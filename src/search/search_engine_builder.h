@@ -1,11 +1,11 @@
 #ifndef SEARCH_ENGINE_BUILDER_H
 #define SEARCH_ENGINE_BUILDER_H
 
-#include "search_engine.h"
-
 #include "options/options.h"
 
 #include <memory>
+
+class SearchEngine;
 
 namespace options {
 class OptionParser;
@@ -18,7 +18,7 @@ public:
     explicit SearchEngineBuilder(const options::Options &opts);
     virtual ~SearchEngineBuilder() = default;
 
-    virtual std::unique_ptr<SearchEngine> build() const = 0;
+    virtual std::shared_ptr<SearchEngine> build() const = 0;
 };
 
 extern void add_search_pruning_option(options::OptionParser &parser);
