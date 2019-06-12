@@ -2,6 +2,7 @@
 
 #include "operator_cost.h"
 #include "option_parser.h"
+#include "plugin.h"
 #include "pruning_method.h"
 
 #include "../utils/logging.h"
@@ -65,3 +66,8 @@ void add_search_succ_order_options(OptionParser &parser) {
         "preferred operators are moved to the front.");
     utils::add_rng_options(parser);
 }
+
+static PluginTypePlugin<SearchEngineBuilder> _type_plugin(
+    "SearchEngine",
+    // TODO: Replace empty string by synopsis for the wiki page.
+    "");
