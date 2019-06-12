@@ -311,9 +311,4 @@ void EagerSearch::update_f_value_statistics(EvaluationContext &eval_context) {
         statistics.report_f_value_progress(f_value);
     }
 }
-
-void add_options_to_parser(OptionParser &parser) {
-    SearchEngine::add_pruning_option(parser);
-    SearchEngine::add_options_to_parser(parser);
-}
 }

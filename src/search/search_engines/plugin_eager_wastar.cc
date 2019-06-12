@@ -1,4 +1,4 @@
-#include "eager_search.h"
+#include "eager_search_builder.h"
 #include "search_common.h"
 
 #include "../option_parser.h"
@@ -48,7 +48,7 @@ static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
         return nullptr;
     } else {
         opts.set("open", search_common::create_wastar_open_list_factory(opts));
-        return make_shared<eager_search::EagerSearch>(opts);
+        return make_shared<eager_search::EagerSearchBuilder>(opts);
     }
 }
 

@@ -45,7 +45,7 @@ static shared_ptr<SearchEngineBuilder> parse_cmd_line_aux(
     const vector<string> &args, options::Registry &registry, bool dry_run) {
     string plan_filename = "sas_plan";
     int num_previously_generated_plans = 0;
-    bool is_part_of_anytime_portfolio = false;
+//    bool is_part_of_anytime_portfolio = false;
     options::Predefinitions predefinitions;
 
     shared_ptr<SearchEngineBuilder> engine;
@@ -101,7 +101,7 @@ static shared_ptr<SearchEngineBuilder> parse_cmd_line_aux(
             if (is_last)
                 throw ArgError("missing argument after --internal-previous-portfolio-plans");
             ++i;
-            is_part_of_anytime_portfolio = true;
+//            is_part_of_anytime_portfolio = true;
             num_previously_generated_plans = parse_int_arg(arg, args[i]);
             if (num_previously_generated_plans < 0)
                 throw ArgError("argument for --internal-previous-portfolio-plans must be positive");

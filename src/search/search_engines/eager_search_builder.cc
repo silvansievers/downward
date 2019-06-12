@@ -1,5 +1,9 @@
 #include "eager_search_builder.h"
 
+#include "eager_search.h"
+
+#include "../utils/memory.h"
+
 using namespace std;
 
 namespace eager_search {
@@ -8,7 +12,7 @@ EagerSearchBuilder::EagerSearchBuilder(const options::Options &opts)
 }
 
 unique_ptr<SearchEngine> EagerSearchBuilder::build() const {
-    return utils::make_unique_ptr<EagerSearchBuilder>(opts);
+    return utils::make_unique_ptr<EagerSearch>(opts);
 }
 
 void add_options_to_parser(options::OptionParser &parser) {

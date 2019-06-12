@@ -61,7 +61,7 @@ protected:
     bool check_goal_and_set_plan(const GlobalState &state);
     int get_adjusted_cost(const OperatorProxy &op) const;
 public:
-    SearchEngine(const options::Options &opts);
+    explicit SearchEngine(const options::Options &opts);
     virtual ~SearchEngine();
     virtual void print_statistics() const = 0;
     virtual void save_plan_if_necessary();

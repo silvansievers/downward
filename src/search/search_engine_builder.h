@@ -12,6 +12,7 @@ class OptionParser;
 }
 
 class SearchEngineBuilder {
+protected:
     const options::Options opts;
 public:
     explicit SearchEngineBuilder(const options::Options &opts);

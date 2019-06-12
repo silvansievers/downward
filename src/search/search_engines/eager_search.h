@@ -44,8 +44,6 @@ public:
 
     void dump_search_space() const;
 };
-
-extern void add_options_to_parser(options::OptionParser &parser);
 }
 
 #endif
