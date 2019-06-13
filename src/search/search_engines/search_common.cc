@@ -1,5 +1,6 @@
 #include "search_common.h"
 
+#include "../evaluator_builder.h"
 #include "../open_list_factory.h"
 #include "../option_parser_util.h"
 
@@ -112,10 +113,8 @@ shared_ptr<OpenListFactory> create_wastar_open_list_factory(
 
 pair<shared_ptr<OpenListFactory>, const shared_ptr<Evaluator>>
 create_astar_open_list_factory_and_f_eval(const Options &opts) {
-    // TODO: this should be changed to create builders once open lists are
-    // created via builders, too.
     shared_ptr<GEval> g = make_shared<GEval>();
-    shared_ptr<Evaluator> h = opts.get<shared_ptr<Evaluator>>("eval");
+    shared_ptr<Evaluator> h = opts.get<shared_ptr<EvaluatorBuilder>>("eval")->build();
     shared_ptr<Evaluator> f = make_shared<SumEval>(vector<shared_ptr<Evaluator>>({g, h}));
     vector<shared_ptr<Evaluator>> evals = {f, h};
 
