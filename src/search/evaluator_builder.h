@@ -7,7 +7,6 @@ class AbstractTask;
 class Evaluator;
 
 class EvaluatorBuilder {
-protected:
 public:
     virtual ~EvaluatorBuilder() = default;
 
