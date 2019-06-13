@@ -24,6 +24,7 @@ static shared_ptr<EvaluatorBuilder> _parse(options::OptionParser &parser) {
         "Cost-adapted evaluator",
         "Apply a cost-transformation to the root task.");
     add_cost_type_option_to_parser(parser);
+    parser.add_option<shared_ptr<EvaluatorBuilder>>("evaluator");
     options::Options opts = parser.parse();
     if (parser.dry_run()) {
         return nullptr;
