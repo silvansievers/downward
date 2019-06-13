@@ -20,9 +20,8 @@ BlindSearchHeuristicBuilder::BlindSearchHeuristicBuilder(const Options &opts)
 
 shared_ptr<Evaluator> BlindSearchHeuristicBuilder::build(
     const shared_ptr<AbstractTask> &task) const {
-    Options my_opts(opts);
-    my_opts.set<shared_ptr<AbstractTask>>("transform", task);
-    return make_shared<BlindSearchHeuristic>(my_opts);
+    return make_shared<BlindSearchHeuristic>(
+        task, cache_estimates, opts.get_unparsed_config());
 }
 
 static shared_ptr<HeuristicBuilder> _parse(OptionParser &parser) {

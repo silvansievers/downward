@@ -12,8 +12,9 @@
 using namespace std;
 
 namespace blind_search_heuristic {
-BlindSearchHeuristic::BlindSearchHeuristic(const Options &opts)
-    : Heuristic(opts),
+BlindSearchHeuristic::BlindSearchHeuristic(
+    const shared_ptr<AbstractTask> &task, bool cache_estimates, const string &name)
+    : Heuristic(task, cache_estimates, name),
       min_operator_cost(task_properties::get_min_operator_cost(task_proxy)) {
     cout << "Initializing blind search heuristic..." << endl;
 }

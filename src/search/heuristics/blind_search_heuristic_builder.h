@@ -5,7 +5,6 @@
 
 namespace blind_search_heuristic {
 class BlindSearchHeuristicBuilder : public HeuristicBuilder {
-    int min_operator_cost;
 public:
     explicit BlindSearchHeuristicBuilder(const options::Options &opts);
 

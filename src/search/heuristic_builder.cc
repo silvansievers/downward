@@ -6,7 +6,8 @@
 using namespace std;
 
 HeuristicBuilder::HeuristicBuilder(const options::Options &opts)
-    : EvaluatorBuilder(opts) {
+    : EvaluatorBuilder(opts),
+      cache_estimates(opts.get<bool>("cache_estimates")) {
 }
 
 void add_heuristic_options_to_parser(OptionParser &parser) {

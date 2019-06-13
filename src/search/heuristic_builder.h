@@ -5,10 +5,11 @@
 
 class Heuristic;
 
-class HeuristicBuilder : public EvaluatorBuilder{
+class HeuristicBuilder : public EvaluatorBuilder {
+protected:
+    const bool cache_estimates;
 public:
     explicit HeuristicBuilder(const options::Options &opts);
-    virtual ~HeuristicBuilder() = default;
 };
 
 extern void add_heuristic_options_to_parser(options::OptionParser &parser);
