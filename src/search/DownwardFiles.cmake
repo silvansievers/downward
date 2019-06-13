@@ -260,6 +260,15 @@ fast_downward_plugin(
 )
 
 fast_downward_plugin(
+    NAME COST_ADAPTED_EVALUATOR
+    HELP "Cost-adapted evaluator"
+    SOURCES
+        evaluators/cost_adapted_evaluator_builder
+    DEPENDS EVALUATORS_PLUGIN_GROUP
+    CORE_PLUGIN
+)
+
+fast_downward_plugin(
     NAME G_EVALUATOR
     HELP "The g-evaluator"
     SOURCES
@@ -349,7 +358,7 @@ fast_downward_plugin(
     HELP "Basic classes used for all search engines"
     SOURCES
         search_engines/search_common
-    DEPENDS ALTERNATION_OPEN_LIST G_EVALUATOR BEST_FIRST_OPEN_LIST SUM_EVALUATOR TIEBREAKING_OPEN_LIST WEIGHTED_EVALUATOR
+    DEPENDS G_EVALUATOR BEST_FIRST_OPEN_LIST SUM_EVALUATOR TIEBREAKING_OPEN_LIST #ALTERNATION_OPEN_LIST WEIGHTED_EVALUATOR
     DEPENDENCY_ONLY
 )
 

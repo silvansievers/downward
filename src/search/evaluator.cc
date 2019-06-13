@@ -7,14 +7,17 @@
 using namespace std;
 
 
-Evaluator::Evaluator(const string &description,
+Evaluator::Evaluator(const shared_ptr<AbstractTask> &task,
+                     const string &description,
                      bool use_for_reporting_minima,
                      bool use_for_boosting,
                      bool use_for_counting_evaluations)
     : description(description),
       use_for_reporting_minima(use_for_reporting_minima),
       use_for_boosting(use_for_boosting),
-      use_for_counting_evaluations(use_for_counting_evaluations) {
+      use_for_counting_evaluations(use_for_counting_evaluations),
+      task(task),
+      task_proxy(*task) {
 }
 
 bool Evaluator::dead_ends_are_reliable() const {

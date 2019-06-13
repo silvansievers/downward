@@ -9,8 +9,10 @@
 using namespace std;
 
 namespace sum_evaluator {
-SumEvaluator::SumEvaluator(const vector<shared_ptr<Evaluator>> &evals)
-    : CombiningEvaluator(evals) {
+SumEvaluator::SumEvaluator(
+    const std::shared_ptr<AbstractTask> &task,
+    const vector<shared_ptr<Evaluator>> &evals)
+    : combining_evaluator::CombiningEvaluator(task, evals) {
 }
 
 SumEvaluator::~SumEvaluator() {

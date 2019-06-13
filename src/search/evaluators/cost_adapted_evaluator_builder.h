@@ -3,10 +3,10 @@
 
 #include "../evaluator_builder.h"
 
-namespace g_evaluator {
-class GEvaluatorBuilder : public EvaluatorBuilder {
+namespace cost_adapted_evaluator {
+class CostadaptedEvaluatorBuilder : public EvaluatorBuilder {
 public:
-    GEvaluatorBuilder();
+    explicit CostadaptedEvaluatorBuilder(const options::Options &opts);
 
     virtual std::shared_ptr<Evaluator> build(
         const std::shared_ptr<AbstractTask> &task) const override;

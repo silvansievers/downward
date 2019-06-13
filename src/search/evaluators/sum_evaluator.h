@@ -11,7 +11,9 @@ class SumEvaluator : public combining_evaluator::CombiningEvaluator {
 protected:
     virtual int combine_values(const std::vector<int> &values) override;
 public:
-    explicit SumEvaluator(const std::vector<std::shared_ptr<Evaluator>> &evals);
+    SumEvaluator(
+        const std::shared_ptr<AbstractTask> &task,
+        const std::vector<std::shared_ptr<Evaluator>> &evals);
     virtual ~SumEvaluator() override;
 };
 }

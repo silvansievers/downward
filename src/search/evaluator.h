@@ -2,7 +2,9 @@
 #define EVALUATOR_H
 
 #include "evaluation_result.h"
+#include "task_proxy.h"
 
+#include <memory>
 #include <set>
 
 class EvaluationContext;
@@ -14,8 +16,15 @@ class Evaluator {
     const bool use_for_boosting;
     const bool use_for_counting_evaluations;
 
+protected:
+    // Hold a reference to the task implementation and pass it to objects that need it.
+    const std::shared_ptr<AbstractTask> task;
+    // Use task_proxy to access task information.
+    const TaskProxy task_proxy;
+
 public:
     Evaluator(
+        const std::shared_ptr<AbstractTask> &task,
         const std::string &description = "<none>",
         bool use_for_reporting_minima = false,
         bool use_for_boosting = false,

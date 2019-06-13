@@ -9,7 +9,8 @@ class BlindSearchHeuristicBuilder : public HeuristicBuilder {
 public:
     explicit BlindSearchHeuristicBuilder(const options::Options &opts);
 
-    virtual std::shared_ptr<Evaluator> build() const override;
+    virtual std::shared_ptr<Evaluator> build(
+        const std::shared_ptr<AbstractTask> &task) const override;
 };
 }
 

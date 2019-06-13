@@ -11,8 +11,9 @@ namespace g_evaluator {
 GEvaluatorBuilder::GEvaluatorBuilder() : EvaluatorBuilder(options::Options()) {
 }
 
-shared_ptr<Evaluator> GEvaluatorBuilder::build() const {
-    return make_shared<GEvaluator>();
+shared_ptr<Evaluator> GEvaluatorBuilder::build(
+    const shared_ptr<AbstractTask> &task) const {
+    return make_shared<GEvaluator>(task);
 }
 
 static shared_ptr<EvaluatorBuilder> _parse(OptionParser &parser) {

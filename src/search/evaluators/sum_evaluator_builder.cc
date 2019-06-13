@@ -19,12 +19,13 @@ SumEvaluatorBuilder::SumEvaluatorBuilder(const vector<shared_ptr<EvaluatorBuilde
     : CombiningEvaluatorBuilder(options::Options(), evals) {
 }
 
-shared_ptr<Evaluator> SumEvaluatorBuilder::build() const {
+shared_ptr<Evaluator> SumEvaluatorBuilder::build(
+    const std::shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> evaluators;
     for (auto &subeval : subevaluators) { // TODO: could directly get from options
-        evaluators.push_back(subeval->build());
+        evaluators.push_back(subeval->build(task));
     }
-    return make_shared<SumEvaluator>(evaluators);
+    return make_shared<SumEvaluator>(task, evaluators);
 }
 
 // TODO: should this be CombiningEvaluatorBuilder? Compiler doesn't like it.

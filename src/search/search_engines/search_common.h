@@ -32,8 +32,8 @@ namespace search_common {
   Create a standard scalar open list factory with the given "eval" and
   "pref_only" options.
 */
-extern std::shared_ptr<OpenListFactory> create_standard_scalar_open_list_factory(
-    const std::shared_ptr<Evaluator> &eval, bool pref_only);
+//extern std::shared_ptr<OpenListFactory> create_standard_scalar_open_list_factory(
+//    const std::shared_ptr<Evaluator> &eval, bool pref_only);
 
 /*
   Create open list factory for the eager_greedy or lazy_greedy plugins.
@@ -50,8 +50,8 @@ extern std::shared_ptr<OpenListFactory> create_standard_scalar_open_list_factory
   for the alternation open list, then that sublist is returned
   directly.
 */
-extern std::shared_ptr<OpenListFactory> create_greedy_open_list_factory(
-    const options::Options &opts);
+//extern std::shared_ptr<OpenListFactory> create_greedy_open_list_factory(
+//    const options::Options &opts);
 
 /*
   Create open list factory for the lazy_wastar plugin.
@@ -64,8 +64,8 @@ extern std::shared_ptr<OpenListFactory> create_greedy_open_list_factory(
   documentation there), except that the open lists use evalators based
   on g + w * h rather than using h directly.
 */
-extern std::shared_ptr<OpenListFactory> create_wastar_open_list_factory(
-    const options::Options &opts);
+//extern std::shared_ptr<OpenListFactory> create_wastar_open_list_factory(
+//    const options::Options &opts);
 
 /*
   Create open list factory and f_evaluator (used for displaying progress

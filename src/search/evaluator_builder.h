@@ -5,6 +5,7 @@
 
 #include <memory>
 
+class AbstractTask;
 class Evaluator;
 
 class EvaluatorBuilder {
@@ -14,7 +15,7 @@ public:
     explicit EvaluatorBuilder(const options::Options &opts);
     virtual ~EvaluatorBuilder() = default;
 
-    virtual std::shared_ptr<Evaluator> build() const = 0;
+    virtual std::shared_ptr<Evaluator> build(const std::shared_ptr<AbstractTask> &task) const = 0;
 };
 
 #endif

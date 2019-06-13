@@ -54,11 +54,6 @@ protected:
     PerStateInformation<HEntry> heuristic_cache;
     bool cache_evaluator_values;
 
-    // Hold a reference to the task implementation and pass it to objects that need it.
-    const std::shared_ptr<AbstractTask> task;
-    // Use task_proxy to access task information.
-    TaskProxy task_proxy;
-
     enum {DEAD_END = -1, NO_VALUE = -2};
 
     // TODO: Call with State directly once all heuristics support it.
