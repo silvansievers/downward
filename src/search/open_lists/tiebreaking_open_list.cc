@@ -39,7 +39,9 @@ protected:
                               const Entry &entry) override;
 
 public:
-    explicit TieBreakingOpenList(const Options &opts);
+    TieBreakingOpenList(const vector<shared_ptr<Evaluator>> &evaluators,
+                        bool preferred_only,
+                        bool allow_unsafe_pruning);
     virtual ~TieBreakingOpenList() override = default;
 
     virtual Entry remove_min() override;
@@ -54,10 +56,14 @@ public:
 
 
 template<class Entry>
-TieBreakingOpenList<Entry>::TieBreakingOpenList(const Options &opts)
-    : OpenList<Entry>(opts.get<bool>("pref_only")),
-      size(0), evaluators(opts.get_list<shared_ptr<Evaluator>>("evals")),
-      allow_unsafe_pruning(opts.get<bool>("unsafe_pruning")) {
+TieBreakingOpenList<Entry>::TieBreakingOpenList(
+    const vector<shared_ptr<Evaluator>> &evaluators,
+    bool preferred_only,
+    bool allow_unsafe_pruning)
+    : OpenList<Entry>(preferred_only),
+      size(0),
+      evaluators(evaluators),
+      allow_unsafe_pruning(allow_unsafe_pruning) {
 }
 
 template<class Entry>
@@ -139,19 +145,29 @@ bool TieBreakingOpenList<Entry>::is_reliable_dead_end(
     return false;
 }
 
-TieBreakingOpenListFactory::TieBreakingOpenListFactory(const Options &options)
-    : options(options) {
+TieBreakingOpenListFactory::TieBreakingOpenListFactory(const Options &opts)
+    : OpenListFactory(opts.get<bool>("pref_only")),
+      evaluator_builders(opts.get_list<shared_ptr<EvaluatorBuilder>>("evals")),
+      allow_unsafe_pruning(opts.get<bool>("unsafe_pruning")) {
 }
 
 unique_ptr<StateOpenList>
-TieBreakingOpenListFactory::create_state_open_list() {
-    return utils::make_unique_ptr<TieBreakingOpenList<StateOpenListEntry>>(options);
+TieBreakingOpenListFactory::create_state_open_list(const shared_ptr<AbstractTask> &task) {
+    vector<shared_ptr<Evaluator>> evaluators;
+    evaluators.reserve(evaluator_builders.size());
+    for (auto &builder : evaluator_builders) {
+        evaluators.push_back(builder->build(task));
+    }
+    return utils::make_unique_ptr<TieBreakingOpenList<StateOpenListEntry>>(
+        evaluators, preferred_only, allow_unsafe_pruning);
 }
 
+/*
 unique_ptr<EdgeOpenList>
 TieBreakingOpenListFactory::create_edge_open_list() {
     return utils::make_unique_ptr<TieBreakingOpenList<EdgeOpenListEntry>>(options);
 }
+*/
 
 static shared_ptr<OpenListFactory> _parse(OptionParser &parser) {
     parser.document_synopsis("Tie-breaking open list", "");

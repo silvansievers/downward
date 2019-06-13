@@ -41,7 +41,8 @@ successor_generator::SuccessorGenerator &get_successor_generator(const TaskProxy
     return successor_generator;
 }
 
-SearchEngine::SearchEngine(const Options &opts)
+SearchEngine::SearchEngine(
+    int bound, double max_time, OperatorCost cost_type, utils::Verbosity verbosity)
     : status(IN_PROGRESS),
       solution_found(false),
       task(tasks::g_root_task),
@@ -49,17 +50,17 @@ SearchEngine::SearchEngine(const Options &opts)
       state_registry(task_proxy),
       successor_generator(get_successor_generator(task_proxy)),
       search_space(state_registry),
-      search_progress(static_cast<utils::Verbosity>(opts.get_enum("verbosity"))),
-      statistics(static_cast<utils::Verbosity>(opts.get_enum("verbosity"))),
-      cost_type(static_cast<OperatorCost>(opts.get_enum("cost_type"))),
+      search_progress(verbosity),
+      statistics(verbosity),
+      bound(bound),
+      cost_type(cost_type),
       is_unit_cost(task_properties::is_unit_cost(task_proxy)),
-      max_time(opts.get<double>("max_time")),
-      verbosity(static_cast<utils::Verbosity>(opts.get_enum("verbosity"))) {
-    if (opts.get<int>("bound") < 0) {
-        cerr << "error: negative cost bound " << opts.get<int>("bound") << endl;
+      max_time(max_time),
+      verbosity(verbosity) {
+    if (bound < 0) {
+        cerr << "error: negative cost bound " << bound << endl;
         utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
-    bound = opts.get<int>("bound");
     task_properties::print_variable_statistics(task_proxy);
 }
 

@@ -20,7 +20,7 @@
 
 #include <memory>
 
-class Evaluator;
+class EvaluatorBuilder;
 class OpenListFactory;
 
 namespace options {
@@ -75,7 +75,7 @@ namespace search_common {
   ordered primarily on g + h and secondarily on h. Uses "eval" from
   the passed-in Options object as the h evaluator.
 */
-extern std::pair<std::shared_ptr<OpenListFactory>, const std::shared_ptr<Evaluator>>
+extern std::pair<std::shared_ptr<OpenListFactory>, const std::shared_ptr<EvaluatorBuilder>>
 create_astar_open_list_factory_and_f_eval(const options::Options &opts);
 }
 

@@ -11,8 +11,12 @@
 
 using namespace std;
 
-SearchEngineBuilder::SearchEngineBuilder(const options::Options &opts)
-    : opts(opts) {
+SearchEngineBuilder::SearchEngineBuilder(
+    int bound, double max_time, OperatorCost cost_type, utils::Verbosity verbosity)
+    : bound(bound),
+      max_time(max_time),
+      cost_type(cost_type),
+      verbosity(verbosity) {
 }
 
 /* TODO: merge this into add_options_to_parser when all search

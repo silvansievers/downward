@@ -45,13 +45,6 @@ public:
 
 
 template<class Entry>
-BestFirstOpenList<Entry>::BestFirstOpenList(const Options &opts)
-    : OpenList<Entry>(opts.get<bool>("pref_only")),
-      size(0),
-      evaluator(opts.get<shared_ptr<Evaluator>>("eval")) {
-}
-
-template<class Entry>
 BestFirstOpenList<Entry>::BestFirstOpenList(
     const shared_ptr<Evaluator> &evaluator, bool preferred_only)
     : OpenList<Entry>(preferred_only),
@@ -113,18 +106,22 @@ bool BestFirstOpenList<Entry>::is_reliable_dead_end(
 
 BestFirstOpenListFactory::BestFirstOpenListFactory(
     const Options &options)
-    : options(options) {
+    : OpenListFactory(options.get<bool>("pref_only")),
+      evaluator_builder(options.get<shared_ptr<EvaluatorBuilder>>("eval")) {
 }
 
 unique_ptr<StateOpenList>
-BestFirstOpenListFactory::create_state_open_list() {
-    return utils::make_unique_ptr<BestFirstOpenList<StateOpenListEntry>>(options);
+BestFirstOpenListFactory::create_state_open_list(const shared_ptr<AbstractTask> &task) {
+    return utils::make_unique_ptr<BestFirstOpenList<StateOpenListEntry>>(
+        evaluator_builder->build(task), preferred_only);
 }
 
+/*
 unique_ptr<EdgeOpenList>
 BestFirstOpenListFactory::create_edge_open_list() {
     return utils::make_unique_ptr<BestFirstOpenList<EdgeOpenListEntry>>(options);
 }
+*/
 
 static shared_ptr<OpenListFactory> _parse(OptionParser &parser) {
     parser.document_synopsis(

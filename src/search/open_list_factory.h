@@ -5,16 +5,22 @@
 
 #include <memory>
 
+class AbstractTask;
 
 class OpenListFactory {
+protected:
+    bool preferred_only;
 public:
-    OpenListFactory() = default;
+    explicit OpenListFactory(bool preferred_only)
+        : preferred_only(preferred_only) {
+    }
     virtual ~OpenListFactory() = default;
 
     OpenListFactory(const OpenListFactory &) = delete;
 
-    virtual std::unique_ptr<StateOpenList> create_state_open_list() = 0;
-    virtual std::unique_ptr<EdgeOpenList> create_edge_open_list() = 0;
+    virtual std::unique_ptr<StateOpenList> create_state_open_list(
+        const std::shared_ptr<AbstractTask> &task) = 0;
+    //virtual std::unique_ptr<EdgeOpenList> create_edge_open_list() = 0;
 
     /*
       The following template receives manual specializations (in the
@@ -23,7 +29,8 @@ public:
       AlternationOpenList.
     */
     template<typename T>
-    std::unique_ptr<OpenList<T>> create_open_list();
+    std::unique_ptr<OpenList<T>> create_open_list(
+        const std::shared_ptr<AbstractTask> &task);
 };
 
 #endif

@@ -6,15 +6,17 @@ using namespace std;
 
 
 template<>
-unique_ptr<StateOpenList> OpenListFactory::create_open_list() {
-    return create_state_open_list();
+unique_ptr<StateOpenList> OpenListFactory::create_open_list(
+    const shared_ptr<AbstractTask> &task) {
+    return create_state_open_list(task);
 }
 
+/*
 template<>
 unique_ptr<EdgeOpenList> OpenListFactory::create_open_list() {
     return create_edge_open_list();
 }
-
+*/
 
 static PluginTypePlugin<OpenListFactory> _type_plugin(
     "OpenList",

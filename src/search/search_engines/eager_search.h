@@ -37,8 +37,13 @@ protected:
     virtual SearchStatus step() override;
 
 public:
-    explicit EagerSearch(const options::Options &opts);
-    virtual ~EagerSearch() = default;
+    EagerSearch(
+        std::unique_ptr<StateOpenList> open_list,
+        const std::shared_ptr<Evaluator> &f_evaluator,
+        const std::vector<std::shared_ptr<Evaluator>> &preferred_operator_evaluators,
+        const std::shared_ptr<Evaluator> &lazy_evaluator,
+        int bound, double max_time, OperatorCost cost_type, bool reopen_closed,
+        utils::Verbosity verbosity);
 
     virtual void print_statistics() const override;
 
