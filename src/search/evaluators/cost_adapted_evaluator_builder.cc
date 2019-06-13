@@ -33,5 +33,5 @@ static shared_ptr<EvaluatorBuilder> _parse(options::OptionParser &parser) {
     }
 }
 
-static Plugin<EvaluatorBuilder> _plugin("adapt_costs_new", _parse, "evaluators_basic");
+static Plugin<EvaluatorBuilder> _plugin("adapt_costs", _parse, "evaluators_basic");
 }
