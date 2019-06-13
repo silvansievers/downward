@@ -122,7 +122,7 @@ shared_ptr<OpenListFactory> create_wastar_open_list_factory(
 */
 
 pair<shared_ptr<OpenListFactory>, const shared_ptr<EvaluatorBuilder>>
-create_astar_open_list_factory_and_f_eval(const Options &opts) {
+create_astar_open_list_factory_and_f_eval_builder(const Options &opts) {
     shared_ptr<EvaluatorBuilder> g_builder = make_shared<g_evaluator::GEvaluatorBuilder>();
     shared_ptr<EvaluatorBuilder> h_builder = opts.get<shared_ptr<EvaluatorBuilder>>("eval");
     shared_ptr<EvaluatorBuilder> f_builder =

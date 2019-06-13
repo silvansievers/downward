@@ -2,10 +2,6 @@
 
 #include "plugin.h"
 
-EvaluatorBuilder::EvaluatorBuilder(const options::Options &opts)
-    : opts(opts) {
-}
-
 static PluginTypePlugin<EvaluatorBuilder> _type_plugin(
     "Evaluator",
     "An evaluator specification is either a newly created evaluator "

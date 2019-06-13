@@ -8,9 +8,6 @@
 using namespace std;
 
 namespace g_evaluator {
-GEvaluatorBuilder::GEvaluatorBuilder() : EvaluatorBuilder(options::Options()) {
-}
-
 shared_ptr<Evaluator> GEvaluatorBuilder::build(
     const shared_ptr<AbstractTask> &task) const {
     return make_shared<GEvaluator>(task);

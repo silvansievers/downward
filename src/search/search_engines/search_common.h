@@ -76,7 +76,7 @@ namespace search_common {
   the passed-in Options object as the h evaluator.
 */
 extern std::pair<std::shared_ptr<OpenListFactory>, const std::shared_ptr<EvaluatorBuilder>>
-create_astar_open_list_factory_and_f_eval(const options::Options &opts);
+create_astar_open_list_factory_and_f_eval_builder(const options::Options &opts);
 }
 
 #endif

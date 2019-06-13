@@ -3,6 +3,10 @@
 
 #include "combining_evaluator_builder.h"
 
+namespace options {
+class Options;
+}
+
 namespace sum_evaluator {
 class SumEvaluatorBuilder : public combining_evaluator::CombiningEvaluatorBuilder {
 public:

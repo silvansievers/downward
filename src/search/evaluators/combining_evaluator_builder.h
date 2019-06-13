@@ -11,7 +11,6 @@ protected:
     std::vector<std::shared_ptr<EvaluatorBuilder>> subevaluators;
 public:
     CombiningEvaluatorBuilder(
-        const options::Options &opts,
         const std::vector<std::shared_ptr<EvaluatorBuilder>> &subevaluators_);
 };
 }

@@ -39,7 +39,7 @@ static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
 
     shared_ptr<eager_search::EagerSearchBuilder> engine;
     if (!parser.dry_run()) {
-        auto temp = search_common::create_astar_open_list_factory_and_f_eval(opts);
+        auto temp = search_common::create_astar_open_list_factory_and_f_eval_builder(opts);
         opts.set("open", temp.first);
         opts.set("f_eval", temp.second);
         opts.set("reopen_closed", true);

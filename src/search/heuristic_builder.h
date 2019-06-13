@@ -3,11 +3,17 @@
 
 #include "evaluator_builder.h"
 
+namespace options {
+class Options;
+class OptionParser;
+}
+
 class Heuristic;
 
 class HeuristicBuilder : public EvaluatorBuilder {
 protected:
     const bool cache_estimates;
+    const std::string name;
 public:
     explicit HeuristicBuilder(const options::Options &opts);
 };

@@ -12,11 +12,11 @@ using namespace std;
 
 namespace sum_evaluator {
 SumEvaluatorBuilder::SumEvaluatorBuilder(const Options &opts)
-    : CombiningEvaluatorBuilder(opts, opts.get_list<shared_ptr<EvaluatorBuilder>>("evals")) {
+    : CombiningEvaluatorBuilder(opts.get_list<shared_ptr<EvaluatorBuilder>>("evals")) {
 }
 
 SumEvaluatorBuilder::SumEvaluatorBuilder(const vector<shared_ptr<EvaluatorBuilder>> &evals)
-    : CombiningEvaluatorBuilder(options::Options(), evals) {
+    : CombiningEvaluatorBuilder(evals) {
 }
 
 shared_ptr<Evaluator> SumEvaluatorBuilder::build(

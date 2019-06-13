@@ -1,6 +1,5 @@
 #include "cost_adapted_evaluator_builder.h"
 
-#include "../operator_cost.h"
 #include "../plugin.h"
 
 #include "../tasks/cost_adapted_task.h"
@@ -9,15 +8,15 @@ using namespace std;
 
 namespace cost_adapted_evaluator {
 CostadaptedEvaluatorBuilder::CostadaptedEvaluatorBuilder(const options::Options &opts)
-    : EvaluatorBuilder(opts) {
+    : child_evaluator_builder(opts.get<shared_ptr<EvaluatorBuilder>>("evaluator")),
+      cost_type(static_cast<OperatorCost>(opts.get_enum("cost_type"))) {
 }
 
 shared_ptr<Evaluator> CostadaptedEvaluatorBuilder::build(
     const shared_ptr<AbstractTask> &task) const {
     shared_ptr<AbstractTask> cost_adapted_task =
-        make_shared<tasks::CostAdaptedTask>(
-            task, static_cast<OperatorCost>(opts.get_enum("cost_type")));
-    return opts.get<shared_ptr<EvaluatorBuilder>>("evaluator")->build(cost_adapted_task);
+        make_shared<tasks::CostAdaptedTask>(task, cost_type);
+    return child_evaluator_builder->build(cost_adapted_task);
 }
 
 static shared_ptr<EvaluatorBuilder> _parse(options::OptionParser &parser) {
