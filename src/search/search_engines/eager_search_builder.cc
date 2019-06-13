@@ -31,7 +31,7 @@ shared_ptr<SearchEngine> EagerSearchBuilder::build(const shared_ptr<AbstractTask
         open_list_builder->create_state_open_list(task),
         f_evaluator_builder->build(task),
         preferred_operator_evaluators,
-        lazy_evaluator_builder->build(task),
+        lazy_evaluator_builder ? lazy_evaluator_builder->build(task) : nullptr,
         bound, max_time, cost_type, reopen_closed_nodes, verbosity);
 }
 

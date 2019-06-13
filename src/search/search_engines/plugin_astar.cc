@@ -43,8 +43,7 @@ static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
         opts.set("open", temp.first);
         opts.set("f_eval", temp.second);
         opts.set("reopen_closed", true);
-        vector<shared_ptr<Evaluator>> preferred_list;
-        opts.set("preferred", preferred_list);
+        opts.set("preferred", vector<shared_ptr<EvaluatorBuilder>>());
         engine = make_shared<eager_search::EagerSearchBuilder>(opts);
     }
 
