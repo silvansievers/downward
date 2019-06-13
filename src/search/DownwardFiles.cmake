@@ -71,6 +71,7 @@ fast_downward_plugin(
         per_task_information
         plan_manager
         plugin
+        plugin_cache
         pruning_method
         search_engine
         search_engine_builder
