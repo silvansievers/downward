@@ -9,7 +9,7 @@ using namespace std;
 namespace cost_adapted_evaluator {
 CostadaptedEvaluatorBuilder::CostadaptedEvaluatorBuilder(const options::Options &opts)
     : child_evaluator_builder(opts.get<shared_ptr<EvaluatorBuilder>>("evaluator")),
-      cost_type(static_cast<OperatorCost>(opts.get_enum("cost_type"))) {
+      cost_type(opts.get<OperatorCost>("cost_type")) {
 }
 
 shared_ptr<Evaluator> CostadaptedEvaluatorBuilder::build(
