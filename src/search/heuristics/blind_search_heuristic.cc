@@ -4,6 +4,7 @@
 #include "../option_parser.h"
 
 #include "../task_utils/task_properties.h"
+#include "../utils/logging.h"
 
 #include <cstddef>
 #include <limits>
@@ -16,7 +17,7 @@ BlindSearchHeuristic::BlindSearchHeuristic(
     const shared_ptr<AbstractTask> &task, bool cache_estimates, const string &name)
     : Heuristic(task, cache_estimates, name),
       min_operator_cost(task_properties::get_min_operator_cost(task_proxy)) {
-    cout << "Initializing blind search heuristic..." << endl;
+    utils::g_log << "Initializing blind search heuristic..." << endl;
 }
 
 BlindSearchHeuristic::~BlindSearchHeuristic() {

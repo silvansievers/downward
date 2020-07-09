@@ -12,8 +12,8 @@ EagerSearchBuilder::EagerSearchBuilder(const options::Options &opts)
     : SearchEngineBuilder(
           opts.get<int>("bound"),
           opts.get<double>("max_time"),
-          static_cast<OperatorCost>(opts.get_enum("cost_type")),
-          static_cast<utils::Verbosity>(opts.get_enum("verbosity"))),
+          opts.get<OperatorCost>("cost_type"),
+          opts.get<utils::Verbosity>("verbosity")),
       reopen_closed_nodes(opts.get<bool>("reopen_closed")),
       open_list_builder(opts.get<shared_ptr<OpenListFactory>>("open")),
       f_evaluator_builder(opts.get<shared_ptr<EvaluatorBuilder>>("f_eval", nullptr)),
