@@ -2,26 +2,26 @@ name: windows-latest
 
 on: [push]
 
-#jobs:
-  #do-everything: # name of the job. Jobs run in parallel unless specified otherwise.
-    #runs-on: windows-latest
-    #strategy:
-      #matrix:
-        #python-version: [ '3.6.8', '3.7.5' ]
-    #name: Python ${{ matrix.python-version }}
-    #steps: # each - is a new sequentially run step
-      #- uses: actions/checkout@master
-      #- name: Setup python
-        #uses: actions/setup-python@v1
-        #with:
-          #python-version: ${{ matrix.python-version }}
-          #architecture: x64
-      #- name: setup
-        #run: |
-          #pip3 install pytest tox
+jobs:
+  do-everything: # name of the job. Jobs run in parallel unless specified otherwise.
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: [ '3.6', '3.7' ]
+    name: Python ${{ matrix.python-version }}
+    steps: # each - is a new sequentially run step
+      - uses: actions/checkout@master
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: setup
+        run: |
+          pip3 install pytest tox
 
-      #- name: compile
-        #shell: cmd
-        #run: |
-          #"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py
-          #"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py --debug
+      - name: compile
+        shell: cmd
+        run: |
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py --debug

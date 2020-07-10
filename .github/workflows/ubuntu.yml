@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        compiler-version: ['gcc5', 'gcc8', 'clang3']
-        python-version: ['3.6.10']
+        compiler-version: ['gcc5'] #, 'gcc8', 'clang3']
+        python-version: ['3.6']
     steps: # each - is a new sequentially run step
       - name: clone-repo
         uses: actions/checkout@v1
@@ -146,15 +146,15 @@ jobs:
     needs: compile
     strategy:
       matrix:
-        compiler-version: ['gcc5', 'gcc8', 'clang3']
-        python-version: ['3.6.10', '3.7.5']
+        compiler-version: ['gcc5'] #, 'gcc8', 'clang3']
+        python-version: ['3.6'] #, '3.7']
         exclude:
           # We test gcc5 with both python versions, and gcc8 and clang3 only
           # with python 3.6.
           - compiler-version: 'gcc8'
-            python-version: '3.7.5'
+            python-version: '3.7'
           - compiler-version: 'clang3'
-            python-version: '3.7.5'
+            python-version: '3.7'
     steps: # each - is a new sequentially run step
       - name: setup-python
         uses: actions/setup-python@v1
@@ -261,11 +261,11 @@ jobs:
           fi
 
       - name: Setup autodoc password
-        if: matrix.compiler-version=='gcc5' && matrix.python-version=='3.6.10'
+        if: matrix.compiler-version=='gcc5' && matrix.python-version=='3.6'
         env:
           AUTODOC_PASSWD: ${{ secrets.AUTODOC_PASSWD }}
         run: echo ${AUTODOC_PASSWD} > ${HOME}/.downward-xmlrpc.secret
 
       - name: Run autodoc dry-run
-        if: matrix.compiler-version=='gcc5' && matrix.python-version=='3.6.10'
+        if: matrix.compiler-version=='gcc5' && matrix.python-version=='3.6'
         run: python3 misc/autodoc/autodoc.py --dry-run
