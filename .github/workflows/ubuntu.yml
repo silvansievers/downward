@@ -29,13 +29,13 @@ jobs:
       - name: setup-cplex
         env:
           CPLEX_URL: ${{ secrets.CPLEX_URL }}
-          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129
         run: |
           # We redirect output of wget to hide the secret URLs.
           wget $CPLEX_URL &> /dev/null
           export CPLEX_INSTALLER=cplex_studio129.linux-x86-64.bin
           chmod +x $CPLEX_INSTALLER
-          sudo ./$CPLEX_INSTALLER -DLICENSE_ACCEPTED=TRUE -i silent
+          sudo ./$CPLEX_INSTALLER -DLICENSE_ACCEPTED=TRUE <<< $'\n\n1\n{DOWNWARD_CPLEX_ROOT}\n\n'
           rm $CPLEX_INSTALLER
 
       - name: setup-soplex
