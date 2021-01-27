@@ -35,7 +35,7 @@ jobs:
           wget $CPLEX_URL &> /dev/null
           export CPLEX_INSTALLER=cplex_studio129.linux-x86-64.bin
           chmod +x $CPLEX_INSTALLER
-          sudo ./$CPLEX_INSTALLER -DLICENSE_ACCEPTED=TRUE -DUSER_INSTALL_DIR=${DOWNWARD_CPLEX_ROOT} -i silent
+          ./$CPLEX_INSTALLER -DLICENSE_ACCEPTED=TRUE -DUSER_INSTALL_DIR=${DOWNWARD_CPLEX_ROOT} -i silent
           rm $CPLEX_INSTALLER
 
       - name: setup-soplex
@@ -51,7 +51,7 @@ jobs:
           cd build
           cmake -DCMAKE_INSTALL_PREFIX="$DOWNWARD_SOPLEX_ROOT" ..
           make
-          sudo make install
+          make install
           cd ../../
           rm -r soplex-3.1.1
 
@@ -77,7 +77,7 @@ jobs:
                       --with-cplex-incdir=$DOWNWARD_CPLEX_ROOT/include/ilcplex \
                       --with-cplex-lib="-lcplex -lm -ldl" # -ldl is only needed for CPLEX >= 12.8
           make
-          sudo make install
+          make install
           cd ../
           rm -r Osi-0.107.9.tgz Osi-0.107.9
 
