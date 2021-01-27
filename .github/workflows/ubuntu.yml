@@ -1,15 +1,15 @@
-name: ubuntu-18.04
+name: ubuntu-20.04
 
 on: [push]
 
 jobs:
   compile: # identifier of the job. Jobs run in parallel unless specified otherwise.
     name: compile
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        compiler-version: ['gcc5'] #, 'gcc8', 'clang3']
-        python-version: ['3.6']
+        compiler-version: ['gcc-5'] #, 'gcc-10', 'clang-3.9', 'clang-11']
+        python-version: ['3.6'] #, '3.9']
     steps: # each - is a new sequentially run step
       - name: clone-repo
         uses: actions/checkout@v1
@@ -23,21 +23,13 @@ jobs:
       - name: setup-dependencies
         run: |
           sudo apt-get -y install zlib1g-dev libgmp3-dev
-          if [[ ${{ matrix.compiler-version }}=="gcc5" ]]; then
-            sudo apt-get -y install gcc-5
-            export GCC=gcc-5
-          elif [[ ${{ matrix.compiler-version }}=="gcc8" ]]; then
-            sudo apt-get -y install gcc-8
-            export GCC=gcc-8
-          elif [[ ${{ matrix.compiler-version }}=="clang3" ]]; then
-            sudo apt-get -y install clang-3.9
-            export GCC=clang-3.9
-          fi
+          sudo apt-get -y install ${{ matrix.compiler-version }}
+          export GCC=${{ matrix.compiler-version }}
 
       - name: setup-cplex
         env:
           CPLEX_URL: ${{ secrets.CPLEX_URL }}
-          DOWNWARD_CPLEX_ROOT: /opt/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
         run: |
           # We redirect output of wget to hide the secret URLs.
           wget $CPLEX_URL &> /dev/null
@@ -49,7 +41,7 @@ jobs:
       - name: setup-soplex
         env:
           SOPLEX_URL: ${{ secrets.SOPLEX_URL }}
-          DOWNWARD_SOPLEX_ROOT: /opt/soplex-3.1.1
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
         run: |
           # We redirect output of wget to hide the secret URLs.
           wget $SOPLEX_URL &> /dev/null
@@ -65,9 +57,9 @@ jobs:
 
       - name: setup-osi
         env:
-          DOWNWARD_CPLEX_ROOT: /opt/ibm/ILOG/CPLEX_Studio129/cplex
-          DOWNWARD_SOPLEX_ROOT: /opt/soplex-3.1.1
-          DOWNWARD_COIN_ROOT: /opt/coin
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
+          DOWNWARD_COIN_ROOT: /home/runner/work/lib/coin
         run: |
           wget http://www.coin-or.org/download/source/Osi/Osi-0.107.9.tgz
           tar xzf Osi-0.107.9.tgz
@@ -91,9 +83,9 @@ jobs:
 
       - name: compile
         env:
-          DOWNWARD_CPLEX_ROOT: /opt/ibm/ILOG/CPLEX_Studio129/cplex
-          DOWNWARD_SOPLEX_ROOT: /opt/soplex-3.1.1
-          DOWNWARD_COIN_ROOT: /opt/coin
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
+          DOWNWARD_COIN_ROOT: /home/runner/work/lib/coin
         run: |
           export CXXFLAGS="-Werror"  # Treat compilation warnings as errors.
           ./build.py --debug
@@ -131,7 +123,7 @@ jobs:
       - name: archive-files
         run: |
           cd ../
-          tar cfz ${{ matrix.compiler-version }}.tar.gz downward
+          tar cfz ${{ matrix.compiler-version }}.tar.gz downward lib
 
       - name: upload-files
         uses: actions/upload-artifact@v1
@@ -176,6 +168,7 @@ jobs:
           tar xfz ${{ matrix.compiler-version }}.tar.gz
           shopt -s dotglob
           mv downward/* ../
+          mv lib/ ../../
           cd ../
           rm -r planners
 
@@ -184,72 +177,11 @@ jobs:
           pip3 install pytest tox
           sudo apt-get -y install clang-tidy-5.0 valgrind zlib1g-dev libgmp3-dev
 
-      # TODO: we have to install cplex again because we link dynamically.
-      - name: setup-cplex
-        env:
-          CPLEX_URL: ${{ secrets.CPLEX_URL }}
-          DOWNWARD_CPLEX_ROOT: /opt/ibm/ILOG/CPLEX_Studio129/cplex
-        run: |
-          # We redirect output of wget to hide the secret URLs.
-          wget $CPLEX_URL &> /dev/null
-          export CPLEX_INSTALLER=cplex_studio129.linux-x86-64.bin
-          chmod +x $CPLEX_INSTALLER
-          sudo ./$CPLEX_INSTALLER -DLICENSE_ACCEPTED=TRUE -i silent
-          rm $CPLEX_INSTALLER
-
-      # TODO: we have to install soplex again because we link dynamically.
-      # We could avoid downloading the file again; maybe even could avoid
-      # configuring again if we don't remove the directory in the setup job.
-      - name: setup-soplex
-        env:
-          SOPLEX_URL: ${{ secrets.SOPLEX_URL }}
-          DOWNWARD_SOPLEX_ROOT: /opt/soplex-3.1.1
-        run: |
-          # We redirect output of wget to hide the secret URLs.
-          wget $SOPLEX_URL &> /dev/null
-          tar xvzf soplex-3.1.1.tgz
-          cd soplex-3.1.1
-          mkdir build
-          cd build
-          cmake -DCMAKE_INSTALL_PREFIX="$DOWNWARD_SOPLEX_ROOT" ..
-          make
-          make install
-          cd ../../
-          rm -r soplex-3.1.1
-
-      # TODO: we have to install osi again because we link dynamically. As
-      # above, keeping the directory and re-running make install could work.
-      - name: setup-osi
-        env:
-          DOWNWARD_CPLEX_ROOT: /opt/ibm/ILOG/CPLEX_Studio129/cplex
-          DOWNWARD_SOPLEX_ROOT: /opt/soplex-3.1.1
-          DOWNWARD_COIN_ROOT: /opt/coin
-        run: |
-          wget http://www.coin-or.org/download/source/Osi/Osi-0.107.9.tgz
-          tar xzf Osi-0.107.9.tgz
-          cd Osi-0.107.9
-          mkdir $DOWNWARD_COIN_ROOT
-          ./configure CC="gcc"  CFLAGS="-pthread -Wno-long-long" \
-                      CXX="g++" CXXFLAGS="-pthread -Wno-long-long" \
-                      LDFLAGS="-L$DOWNWARD_CPLEX_ROOT/lib/x86-64_linux/static_pic \
-                               -L$DOWNWARD_SOPLEX_ROOT/lib" \
-                      --without-lapack --enable-static=no \
-                      --prefix="$DOWNWARD_COIN_ROOT" \
-                      --disable-bzlib \
-                      --with-soplex-incdir=$DOWNWARD_SOPLEX_ROOT/include \
-                      --with-soplex-lib="-lsoplex" \
-                      --with-cplex-incdir=$DOWNWARD_CPLEX_ROOT/include/ilcplex \
-                      --with-cplex-lib="-lcplex -lm -ldl" # -ldl is only needed for CPLEX >= 12.8
-          make
-          sudo make install
-          cd ../
-          rm -r Osi-0.107.9.tgz Osi-0.107.9
-
       - name: test
         env:
-          DOWNWARD_CPLEX_ROOT: /opt/ibm/ILOG/CPLEX_Studio129/cplex
-          DOWNWARD_SOPLEX_ROOT: /opt/soplex-3.1.1
-          DOWNWARD_COIN_ROOT: /opt/coin
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
+          DOWNWARD_COIN_ROOT: /home/runner/work/lib/coin
         run: |
           export PATH="$(pwd):$PATH"  # Add uncrustify and VAL to PATH.
           cd misc/
@@ -259,13 +191,3 @@ jobs:
           elif [[ $python_version=="3.7.*" ]]; then
             tox -e py37,translator,search,style
           fi
-
-      - name: Setup autodoc password
-        if: matrix.compiler-version=='gcc5' && matrix.python-version=='3.6'
-        env:
-          AUTODOC_PASSWD: ${{ secrets.AUTODOC_PASSWD }}
-        run: echo ${AUTODOC_PASSWD} > ${HOME}/.downward-xmlrpc.secret
-
-      - name: Run autodoc dry-run
-        if: matrix.compiler-version=='gcc5' && matrix.python-version=='3.6'
-        run: python3 misc/autodoc/autodoc.py --dry-run
