@@ -51,7 +51,7 @@ jobs:
           cd build
           cmake -DCMAKE_INSTALL_PREFIX="$DOWNWARD_SOPLEX_ROOT" ..
           make
-          make install
+          sudo make install
           cd ../../
           rm -r soplex-3.1.1
 
