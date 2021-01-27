@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        compiler-version: ['gcc-5'] #, 'gcc-10', 'clang-3.9', 'clang-11']
+        compiler-version: ['gcc-7'] #, 'gcc-10', 'clang-3.9', 'clang-11']
         python-version: ['3.6'] #, '3.9']
     steps: # each - is a new sequentially run step
       - name: clone-repo
@@ -138,7 +138,7 @@ jobs:
     needs: compile
     strategy:
       matrix:
-        compiler-version: ['gcc5'] #, 'gcc8', 'clang3']
+        compiler-version: ['gcc7'] #, 'gcc8', 'clang3']
         python-version: ['3.6'] #, '3.7']
         exclude:
           # We test gcc5 with both python versions, and gcc8 and clang3 only
