@@ -29,7 +29,7 @@ jobs:
       - name: setup-cplex
         env:
           CPLEX_URL: ${{ secrets.CPLEX_URL }}
-          DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/downwardlib/ibm/ILOG/CPLEX_Studio129
         run: |
           # We redirect output of wget to hide the secret URLs.
           wget $CPLEX_URL &> /dev/null
@@ -38,93 +38,91 @@ jobs:
           ./$CPLEX_INSTALLER -DLICENSE_ACCEPTED=TRUE -DUSER_INSTALL_DIR=${DOWNWARD_CPLEX_ROOT} -i silent
           rm $CPLEX_INSTALLER
 
-      #- name: setup-soplex
-        #env:
-          #SOPLEX_URL: ${{ secrets.SOPLEX_URL }}
-          #DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
-        #run: |
-          ## We redirect output of wget to hide the secret URLs.
-          #wget $SOPLEX_URL &> /dev/null
-          #tar xvzf soplex-3.1.1.tgz
-          #cd soplex-3.1.1
-          #mkdir build
-          #cd build
-          #cmake -DCMAKE_INSTALL_PREFIX="$DOWNWARD_SOPLEX_ROOT" ..
-          #make
-          #make install
-          #cd ../../
-          #rm -r soplex-3.1.1
+      - name: setup-soplex
+        env:
+          SOPLEX_URL: ${{ secrets.SOPLEX_URL }}
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/downwardlib/soplex-3.1.1
+        run: |
+          # We redirect output of wget to hide the secret URLs.
+          wget $SOPLEX_URL &> /dev/null
+          tar xvzf soplex-3.1.1.tgz
+          cd soplex-3.1.1
+          mkdir build
+          cd build
+          cmake -DCMAKE_INSTALL_PREFIX="$DOWNWARD_SOPLEX_ROOT" ..
+          make
+          make install
+          cd ../../
+          rm -r soplex-3.1.1
 
-      #- name: setup-osi
-        #env:
-          #DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
-          #DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
-          #DOWNWARD_COIN_ROOT: /home/runner/work/lib/coin
-        #run: |
-          #wget http://www.coin-or.org/download/source/Osi/Osi-0.107.9.tgz
-          #tar xzf Osi-0.107.9.tgz
-          #cd Osi-0.107.9
-          #mkdir $DOWNWARD_COIN_ROOT
-          #./configure CC="gcc"  CFLAGS="-pthread -Wno-long-long" \
-                      #CXX="g++" CXXFLAGS="-pthread -Wno-long-long" \
-                      #LDFLAGS="-L$DOWNWARD_CPLEX_ROOT/lib/x86-64_linux/static_pic \
-                               #-L$DOWNWARD_SOPLEX_ROOT/lib" \
-                      #--without-lapack --enable-static=no \
-                      #--prefix="$DOWNWARD_COIN_ROOT" \
-                      #--disable-bzlib \
-                      #--with-soplex-incdir=$DOWNWARD_SOPLEX_ROOT/include \
-                      #--with-soplex-lib="-lsoplex" \
-                      #--with-cplex-incdir=$DOWNWARD_CPLEX_ROOT/include/ilcplex \
-                      #--with-cplex-lib="-lcplex -lm -ldl" # -ldl is only needed for CPLEX >= 12.8
-          #make
-          #make install
-          #cd ../
-          #rm -r Osi-0.107.9.tgz Osi-0.107.9
+      - name: setup-osi
+        env:
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/downwardlib/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/downwardlib/soplex-3.1.1
+          DOWNWARD_COIN_ROOT: /home/runner/work/downwardlib/coin
+        run: |
+          wget http://www.coin-or.org/download/source/Osi/Osi-0.107.9.tgz
+          tar xzf Osi-0.107.9.tgz
+          cd Osi-0.107.9
+          mkdir $DOWNWARD_COIN_ROOT
+          ./configure CC="gcc"  CFLAGS="-pthread -Wno-long-long" \
+                      CXX="g++" CXXFLAGS="-pthread -Wno-long-long" \
+                      LDFLAGS="-L$DOWNWARD_CPLEX_ROOT/lib/x86-64_linux/static_pic \
+                               -L$DOWNWARD_SOPLEX_ROOT/lib" \
+                      --without-lapack --enable-static=no \
+                      --prefix="$DOWNWARD_COIN_ROOT" \
+                      --disable-bzlib \
+                      --with-soplex-incdir=$DOWNWARD_SOPLEX_ROOT/include \
+                      --with-soplex-lib="-lsoplex" \
+                      --with-cplex-incdir=$DOWNWARD_CPLEX_ROOT/include/ilcplex \
+                      --with-cplex-lib="-lcplex -lm -ldl" # -ldl is only needed for CPLEX >= 12.8
+          make
+          make install
+          cd ../
+          rm -r Osi-0.107.9.tgz Osi-0.107.9
 
-      #- name: compile
-        #env:
-          #DOWNWARD_CPLEX_ROOT: /home/runner/work/lib/ibm/ILOG/CPLEX_Studio129/cplex
-          #DOWNWARD_SOPLEX_ROOT: /home/runner/work/lib/soplex-3.1.1
-          #DOWNWARD_COIN_ROOT: /home/runner/work/lib/coin
-        #run: |
-          #export CXXFLAGS="-Werror"  # Treat compilation warnings as errors.
-          #./build.py --debug
-          #./build.py
+      - name: compile
+        env:
+          DOWNWARD_CPLEX_ROOT: /home/runner/work/downwardlib/ibm/ILOG/CPLEX_Studio129/cplex
+          DOWNWARD_SOPLEX_ROOT: /home/runner/work/downwardlib/soplex-3.1.1
+          DOWNWARD_COIN_ROOT: /home/runner/work/downwardlib/coin
+        run: |
+          export CXXFLAGS="-Werror"  # Treat compilation warnings as errors.
+          ./build.py --debug
+          ./build.py
 
-      #- name: setup-uncrustify
-        #run: |
-          ## Set up uncrustify.
-          #wget https://github.com/uncrustify/uncrustify/archive/uncrustify-0.67.tar.gz
-          #tar xzf uncrustify-0.67.tar.gz
-          #cd uncrustify-uncrustify-0.67
-          #mkdir build
-          #cd build
-          #cmake ../
-          #make -j8
-          #mv uncrustify ../../
-          #cd ../../
-          #rm -rf uncrustify-0.67.tar.gz uncrustify-uncrustify-0.67
+      - name: setup-uncrustify
+        run: |
+          # Set up uncrustify.
+          wget https://github.com/uncrustify/uncrustify/archive/uncrustify-0.67.tar.gz
+          tar xzf uncrustify-0.67.tar.gz
+          cd uncrustify-uncrustify-0.67
+          mkdir build
+          cd build
+          cmake ../
+          make -j8
+          mv uncrustify ../../
+          cd ../../
+          rm -rf uncrustify-0.67.tar.gz uncrustify-uncrustify-0.67
 
-      #- name: setup-val
-        #run: |
-          ## Set up VAL.
-          #sudo apt-get -y install flex bison
-          #git clone https://github.com/KCL-Planning/VAL.git
-          #cd VAL
-          #git checkout a5565396007eee73ac36527fbf904142b3077c74
-          #make clean  # Remove old build artifacts and binaries.
-          #sed -i 's/-Werror //g' Makefile  # Ignore warnings.
-          #make -j8
-          #mv validate ../
-          #cd ../
-          #ls -la
-          #rm -rf VAL
+      - name: setup-val
+        run: |
+          # Set up VAL.
+          sudo apt-get -y install flex bison
+          git clone https://github.com/KCL-Planning/VAL.git
+          cd VAL
+          git checkout a5565396007eee73ac36527fbf904142b3077c74
+          make clean  # Remove old build artifacts and binaries.
+          sed -i 's/-Werror //g' Makefile  # Ignore warnings.
+          make -j8
+          mv validate ../
+          cd ../
+          ls -la
+          rm -rf VAL
 
       - name: archive-files
         run: |
           cd ../
-          pwd
-          ls -R
           tar cfz ${{ matrix.compiler-version }}.tar.gz downward lib
 
       - name: upload-files
