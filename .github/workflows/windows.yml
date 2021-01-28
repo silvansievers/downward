@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: [ '3.6']
+        python-version: ['3.6']
         build-version: ["release", "debug"]
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
@@ -48,13 +48,11 @@ jobs:
       - name: download-planner
         uses: actions/download-artifact@master
         with:
-          # without name attribute all artifacts are downloaded and their
-          # name is used as directory name.
+          # without 'name' attribute all artifacts are downloaded and the
+          # artifact name is used as directory name.
           path: builds/
       - name: test
         shell: cmd
         run: |
-          dir builds/
           cd misc/
-          dir
           tox -e search
