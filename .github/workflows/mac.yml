@@ -8,7 +8,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [ '3.6'] #, '3.7' ]
+        python-version: ['3.6'] #, '3.7' ]
         build-version: ["release", "debug"]
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
@@ -33,7 +33,7 @@ jobs:
     needs: compile
     strategy:
       matrix:
-        python-version: [ '3.6'] #, '3.7' ]
+        python-version: ['3.6'] #, '3.7' ]
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
       - name: Setup python
@@ -54,6 +54,8 @@ jobs:
           path: builds/
       - name: test
         run: |
+          chmod +x builds/debug/bin/downward
+          chmod +x builds/release/bin/downward
           cd misc/
           tox -e search
 #          pytest test-exitcodes.py
