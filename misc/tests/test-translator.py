@@ -123,7 +123,6 @@ def main():
     args = parse_args()
     os.chdir(DIR)
     cleanup()
-    # subprocess.check_call([sys.executable, "build.py", "translate"], cwd=REPO)
     for task in get_tasks(args):
         write_combined_output("base.sas", task)
         for iteration in range(2):
