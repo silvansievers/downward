@@ -3,12 +3,36 @@ name: macos-latest
 on: [push]
 
 jobs:
-  do-everything: # name of the job. Jobs run in parallel unless specified otherwise.
+  compile: # name of the job. Jobs run in parallel unless specified otherwise.
+    name: compile
     runs-on: macos-latest
     strategy:
       matrix:
         python-version: [ '3.6'] #, '3.7' ]
-    name: Python ${{ matrix.python-version }}
+        build-version: ["release", "debug"]
+    steps: # each - is a new sequentially run step
+      - uses: actions/checkout@master
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - name: compile
+        run: |
+          export CXXFLAGS="-Werror"  # Treat compilation warnings as errors.
+          ./build.py ${{ matrix.build-version }}
+      - name: upload-planner
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.build-version }}
+          path: builds/${{ matrix.build-version }}
+
+  test: # name of the job. Jobs run in parallel unless specified otherwise.
+    name: test
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: [ '3.6'] #, '3.7' ]
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
       - name: Setup python
@@ -20,13 +44,15 @@ jobs:
         run: |
           pip3 install pytest tox
           #brew install valgrind # TODO: does not work
-      - name: compile
-        run: |
-          export CXXFLAGS="-Werror"  # Treat compilation warnings as errors.
-          ./build.py --debug
-          ./build.py
+          mkdir builds
+      - name: download-planner
+        uses: actions/download-artifact@master
+        with:
+          # without 'name' attribute all artifacts are downloaded and the
+          # artifact name is used as directory name.
+          path: builds/
       - name: test
         run: |
-          cd misc/tests/
+          cd misc/
           pytest test-exitcodes.py
           pytest test-standard-configs.py
