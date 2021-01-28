@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7' ]
+        python-version: [ '3.6'] #, '3.7' ]
     name: Python ${{ matrix.python-version }}
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
@@ -19,9 +19,17 @@ jobs:
       - name: setup
         run: |
           pip3 install pytest tox
-
-      - name: compile
+      - name: compile debug
+        shell: cmd
+        run: |
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py --debug
+      - name: compile release
         shell: cmd
         run: |
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py --debug
+      - name: test
+        shell: cmd
+        run: |
+          cd misc/
+          dir
+          tox -e search
