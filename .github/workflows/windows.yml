@@ -33,7 +33,7 @@ jobs:
     needs: compile
     strategy:
       matrix:
-        python-version: [ '3.6']
+        python-version: ['3.6']
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
       - name: Setup python
@@ -55,4 +55,4 @@ jobs:
         shell: cmd
         run: |
           cd misc/
-          tox -e search
+          tox -e search, translate
