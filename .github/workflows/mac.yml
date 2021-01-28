@@ -64,4 +64,4 @@ jobs:
           chmod +x builds/debug/bin/downward
           chmod +x builds/release/bin/downward
           cd misc/
-          tox -e search, translator
+          tox -e search,translator

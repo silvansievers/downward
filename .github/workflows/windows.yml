@@ -62,4 +62,4 @@ jobs:
         shell: cmd
         run: |
           cd misc/
-          tox -e search, translator
+          tox -e search,translator
