@@ -7,7 +7,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7' ]
+        python-version: [ '3.6'] #, '3.7' ]
     name: Python ${{ matrix.python-version }}
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
@@ -20,13 +20,11 @@ jobs:
         run: |
           pip3 install pytest tox
           #brew install valgrind # TODO: does not work
-
       - name: compile
         run: |
           export CXXFLAGS="-Werror"  # Treat compilation warnings as errors.
           ./build.py --debug
           ./build.py
-
       - name: test
         run: |
           cd misc/tests/
