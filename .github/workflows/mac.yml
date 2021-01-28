@@ -55,5 +55,6 @@ jobs:
       - name: test
         run: |
           cd misc/
-          pytest test-exitcodes.py
-          pytest test-standard-configs.py
+          tox -e search
+#          pytest test-exitcodes.py
+#          pytest test-standard-configs.py
