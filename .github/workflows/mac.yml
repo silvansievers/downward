@@ -30,6 +30,7 @@ jobs:
   test: # name of the job. Jobs run in parallel unless specified otherwise.
     name: test
     runs-on: macos-latest
+    needs: compile
     strategy:
       matrix:
         python-version: [ '3.6'] #, '3.7' ]
