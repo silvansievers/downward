@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
+          architecture: ${{ env.ARCH }}
 
       - name: compile
         shell: cmd
@@ -47,7 +47,7 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
+          architecture: ${{ env.ARCH }}
 
       - name: setup
         run: |
