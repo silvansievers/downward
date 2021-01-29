@@ -12,6 +12,7 @@ jobs:
         build-version: ["release", "debug"]
     steps: # each - is a new sequentially run step
       - uses: actions/checkout@master
+
       - name: Setup python
         uses: actions/setup-python@v1
         with:
@@ -62,4 +63,4 @@ jobs:
         shell: cmd
         run: |
           cd misc/
-          tox -e search,translator
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & tox -e search,translator
