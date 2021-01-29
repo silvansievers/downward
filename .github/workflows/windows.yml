@@ -1,7 +1,9 @@
 name: windows-latest
 
 on: [push]
-
+env:
+  ARCH: "x64"
+  VC: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat"
 jobs:
   compile: # name of the job. Jobs run in parallel unless specified otherwise.
     name: compile
@@ -22,7 +24,7 @@ jobs:
       - name: compile
         shell: cmd
         run: |
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & python build.py ${{ matrix.build-version }}
+          "${{ env.VC }}" ${{ env.ARCH }} & python build.py ${{ matrix.build-version }}
 
       - name: upload-planner
         uses: actions/upload-artifact@master
@@ -63,4 +65,4 @@ jobs:
         shell: cmd
         run: |
           cd misc/
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\VC\\Auxiliary\\Build\\vcvarsall.bat" x64 & tox -e search,translator
+          "${{ env.VC }}" ${{ env.ARCH }} & tox -e search,translator
