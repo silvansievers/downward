@@ -156,7 +156,7 @@ TieBreakingOpenListFactory::create_state_open_list(const shared_ptr<AbstractTask
     vector<shared_ptr<Evaluator>> evaluators;
     evaluators.reserve(evaluator_builders.size());
     for (auto &builder : evaluator_builders) {
-        evaluators.push_back(builder->build(task));
+        evaluators.push_back(builder->get_built_element(task));
     }
     return utils::make_unique_ptr<TieBreakingOpenList<StateOpenListEntry>>(
         evaluators, preferred_only, allow_unsafe_pruning);

@@ -50,6 +50,7 @@ fast_downward_plugin(
 
         abstract_task
         axioms
+        cached_builder
         command_line
         evaluation_context
         evaluation_result
@@ -70,7 +71,6 @@ fast_downward_plugin(
         per_task_information
         plan_manager
         plugin
-        plugin_cache
         pruning_method
         search_engine
         search_engine_builder

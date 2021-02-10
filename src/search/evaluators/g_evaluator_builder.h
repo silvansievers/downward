@@ -5,7 +5,7 @@
 
 namespace g_evaluator {
 class GEvaluatorBuilder : public EvaluatorBuilder {
-public:
+protected:
     virtual std::shared_ptr<Evaluator> build(
         const std::shared_ptr<AbstractTask> &task) const override;
 };

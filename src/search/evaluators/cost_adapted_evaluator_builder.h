@@ -12,11 +12,11 @@ namespace cost_adapted_evaluator {
 class CostadaptedEvaluatorBuilder : public EvaluatorBuilder {
     std::shared_ptr<EvaluatorBuilder> child_evaluator_builder;
     OperatorCost cost_type;
-public:
-    explicit CostadaptedEvaluatorBuilder(const options::Options &opts);
-
+protected:
     virtual std::shared_ptr<Evaluator> build(
         const std::shared_ptr<AbstractTask> &task) const override;
+public:
+    explicit CostadaptedEvaluatorBuilder(const options::Options &opts);
 };
 }
 

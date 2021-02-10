@@ -14,17 +14,13 @@
 using namespace std;
 
 namespace blind_search_heuristic {
-BlindSearchHeuristicBuilder::BlindSearchHeuristicBuilder(const Options &opts)
-    : HeuristicBuilder(opts),
-      cached_evaluators(
-          [this](const shared_ptr<AbstractTask> &task) {
-              return make_shared<BlindSearchHeuristic>(task, cache_estimates, name);
-          }) {
+BlindSearchHeuristicBuilder::BlindSearchHeuristicBuilder(const options::Options &opts)
+    : HeuristicBuilder(opts) {
 }
 
 shared_ptr<Evaluator> BlindSearchHeuristicBuilder::build(
     const shared_ptr<AbstractTask> &task) const {
-    return cached_evaluators[task];
+    return make_shared<BlindSearchHeuristic>(task, cache_estimates, name);
 }
 
 static shared_ptr<HeuristicBuilder> _parse(OptionParser &parser) {

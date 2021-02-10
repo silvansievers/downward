@@ -113,7 +113,7 @@ BestFirstOpenListFactory::BestFirstOpenListFactory(
 unique_ptr<StateOpenList>
 BestFirstOpenListFactory::create_state_open_list(const shared_ptr<AbstractTask> &task) {
     return utils::make_unique_ptr<BestFirstOpenList<StateOpenListEntry>>(
-        evaluator_builder->build(task), preferred_only);
+        evaluator_builder->get_built_element(task), preferred_only);
 }
 
 /*

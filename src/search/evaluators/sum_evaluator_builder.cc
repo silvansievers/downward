@@ -23,7 +23,7 @@ shared_ptr<Evaluator> SumEvaluatorBuilder::build(
     const std::shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> evaluators;
     for (auto &subeval : subevaluators) { // TODO: could directly get from options
-        evaluators.push_back(subeval->build(task));
+        evaluators.push_back(subeval->get_built_element(task));
     }
     return make_shared<SumEvaluator>(task, evaluators);
 }
