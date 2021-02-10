@@ -53,7 +53,7 @@ int main(int argc, const char **argv) {
         utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
 
-    shared_ptr<SearchEngine> engine = engine_builder->build(tasks::g_root_task);
+    shared_ptr<SearchEngine> engine = engine_builder->get_built_element(tasks::g_root_task);
 
     utils::Timer search_timer;
     engine->search();

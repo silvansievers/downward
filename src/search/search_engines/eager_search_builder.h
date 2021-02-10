@@ -14,11 +14,11 @@ class EagerSearchBuilder : public SearchEngineBuilder {
     std::shared_ptr<EvaluatorBuilder> f_evaluator_builder;
     std::vector<std::shared_ptr<EvaluatorBuilder>> preferred_operator_evaluator_builders;
     std::shared_ptr<EvaluatorBuilder> lazy_evaluator_builder;
-public:
-    explicit EagerSearchBuilder(const options::Options &opts);
-
+protected:
     virtual std::shared_ptr<SearchEngine> build(
         const std::shared_ptr<AbstractTask> &task) const override;
+public:
+    explicit EagerSearchBuilder(const options::Options &opts);
 };
 
 extern void add_options_to_parser(options::OptionParser &parser);
