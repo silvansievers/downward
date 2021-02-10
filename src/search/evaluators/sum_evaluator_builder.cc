@@ -20,10 +20,11 @@ SumEvaluatorBuilder::SumEvaluatorBuilder(const vector<shared_ptr<EvaluatorBuilde
 }
 
 shared_ptr<Evaluator> SumEvaluatorBuilder::build(
+    PluginVariables &variable_context,
     const std::shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> evaluators;
     for (auto &subeval : subevaluators) { // TODO: could directly get from options
-        evaluators.push_back(subeval->get_built_element(task));
+        evaluators.push_back(subeval->get_built_element(variable_context, task));
     }
     return make_shared<SumEvaluator>(task, evaluators);
 }

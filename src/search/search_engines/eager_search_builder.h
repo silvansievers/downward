@@ -16,6 +16,7 @@ class EagerSearchBuilder : public SearchEngineBuilder {
     std::shared_ptr<EvaluatorBuilder> lazy_evaluator_builder;
 protected:
     virtual std::shared_ptr<SearchEngine> build(
+        PluginVariables &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 public:
     explicit EagerSearchBuilder(const options::Options &opts);

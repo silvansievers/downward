@@ -21,6 +21,7 @@ public:
     virtual ~BestFirstOpenListFactory() override = default;
 
     virtual std::unique_ptr<StateOpenList> create_state_open_list(
+        PluginVariables &variable_context,
         const std::shared_ptr<AbstractTask> &task) override;
     //virtual std::unique_ptr<EdgeOpenList> create_edge_open_list() override;
 };

@@ -152,11 +152,11 @@ TieBreakingOpenListFactory::TieBreakingOpenListFactory(const Options &opts)
 }
 
 unique_ptr<StateOpenList>
-TieBreakingOpenListFactory::create_state_open_list(const shared_ptr<AbstractTask> &task) {
+TieBreakingOpenListFactory::create_state_open_list(PluginVariables &variable_context, const shared_ptr<AbstractTask> &task) {
     vector<shared_ptr<Evaluator>> evaluators;
     evaluators.reserve(evaluator_builders.size());
     for (auto &builder : evaluator_builders) {
-        evaluators.push_back(builder->get_built_element(task));
+        evaluators.push_back(builder->get_built_element(variable_context, task));
     }
     return utils::make_unique_ptr<TieBreakingOpenList<StateOpenListEntry>>(
         evaluators, preferred_only, allow_unsafe_pruning);

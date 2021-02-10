@@ -9,7 +9,7 @@ using namespace std;
 
 namespace g_evaluator {
 shared_ptr<Evaluator> GEvaluatorBuilder::build(
-    const shared_ptr<AbstractTask> &task) const {
+    PluginVariables &, const shared_ptr<AbstractTask> &task) const {
     return make_shared<GEvaluator>(task);
 }
 

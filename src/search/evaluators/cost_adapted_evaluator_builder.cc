@@ -13,10 +13,11 @@ CostadaptedEvaluatorBuilder::CostadaptedEvaluatorBuilder(const options::Options 
 }
 
 shared_ptr<Evaluator> CostadaptedEvaluatorBuilder::build(
+    PluginVariables &variable_context,
     const shared_ptr<AbstractTask> &task) const {
     shared_ptr<AbstractTask> cost_adapted_task =
         make_shared<tasks::CostAdaptedTask>(task, cost_type);
-    return child_evaluator_builder->get_built_element(cost_adapted_task);
+    return child_evaluator_builder->get_built_element(variable_context, cost_adapted_task);
 }
 
 static shared_ptr<EvaluatorBuilder> _parse(options::OptionParser &parser) {

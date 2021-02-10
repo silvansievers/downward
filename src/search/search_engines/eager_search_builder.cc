@@ -21,17 +21,19 @@ EagerSearchBuilder::EagerSearchBuilder(const options::Options &opts)
       lazy_evaluator_builder(opts.get<shared_ptr<EvaluatorBuilder>>("lazy_evaluator", nullptr)) {
 }
 
-shared_ptr<SearchEngine> EagerSearchBuilder::build(const shared_ptr<AbstractTask> &task) const {
+shared_ptr<SearchEngine> EagerSearchBuilder::build(
+    PluginVariables &variable_context, const shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> preferred_operator_evaluators;
     preferred_operator_evaluators.reserve(preferred_operator_evaluator_builders.size());
     for (auto &builder : preferred_operator_evaluator_builders) {
-        preferred_operator_evaluators.push_back(builder->get_built_element(task));
+        preferred_operator_evaluators.push_back(builder->get_built_element(variable_context, task));
     }
     return make_shared<EagerSearch>(
-        open_list_builder->create_state_open_list(task),
-        f_evaluator_builder->get_built_element(task),
+        open_list_builder->create_state_open_list(variable_context, task),
+        f_evaluator_builder->get_built_element(variable_context, task),
         preferred_operator_evaluators,
-        lazy_evaluator_builder ? lazy_evaluator_builder->get_built_element(task) : nullptr,
+        lazy_evaluator_builder ?
+            lazy_evaluator_builder->get_built_element(variable_context, task) : nullptr,
         bound, max_time, cost_type, reopen_closed_nodes, verbosity);
 }
 

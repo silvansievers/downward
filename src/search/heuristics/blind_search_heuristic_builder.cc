@@ -19,7 +19,7 @@ BlindSearchHeuristicBuilder::BlindSearchHeuristicBuilder(const options::Options 
 }
 
 shared_ptr<Evaluator> BlindSearchHeuristicBuilder::build(
-    const shared_ptr<AbstractTask> &task) const {
+    PluginVariables &, const shared_ptr<AbstractTask> &task) const {
     return make_shared<BlindSearchHeuristic>(task, cache_estimates, name);
 }
 

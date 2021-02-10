@@ -23,6 +23,7 @@ protected:
     const OperatorCost cost_type;
     const utils::Verbosity verbosity;
     virtual std::shared_ptr<SearchEngine> build(
+        PluginVariables &variable_context,
         const std::shared_ptr<AbstractTask> &task) const = 0;
 public:
     explicit SearchEngineBuilder(
