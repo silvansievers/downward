@@ -11,11 +11,11 @@ namespace sum_evaluator {
 class SumEvaluatorBuilder : public combining_evaluator::CombiningEvaluatorBuilder {
 protected:
     virtual std::shared_ptr<Evaluator> build(
-        PluginVariables &variable_context,
+        PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 public:
     explicit SumEvaluatorBuilder(const options::Options &opts);
-    explicit SumEvaluatorBuilder(const std::vector<std::shared_ptr<EvaluatorBuilder>> &evals);
+    explicit SumEvaluatorBuilder(const std::vector<std::shared_ptr<PluginBuilder<Evaluator>>> &evals);
 };
 }
 

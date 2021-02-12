@@ -1,7 +1,8 @@
 #ifndef HEURISTIC_BUILDER_H
 #define HEURISTIC_BUILDER_H
 
-#include "evaluator_builder.h"
+#include "evaluator.h"
+#include "plugin_builder.h"
 
 namespace options {
 class Options;
@@ -10,7 +11,7 @@ class OptionParser;
 
 class Heuristic;
 
-class HeuristicBuilder : public EvaluatorBuilder {
+class HeuristicBuilder : public PluginBuilder<Evaluator> {
 protected:
     const bool cache_estimates;
     const std::string name;

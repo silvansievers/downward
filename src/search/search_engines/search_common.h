@@ -18,9 +18,11 @@
   to eager and lazy search.
 */
 
+#include "../plugin_builder.h"
+
 #include <memory>
 
-class EvaluatorBuilder;
+class Evaluator;
 class OpenListFactory;
 
 namespace options {
@@ -75,7 +77,7 @@ namespace search_common {
   ordered primarily on g + h and secondarily on h. Uses "eval" from
   the passed-in Options object as the h evaluator.
 */
-extern std::pair<std::shared_ptr<OpenListFactory>, const std::shared_ptr<EvaluatorBuilder>>
+extern std::pair<std::shared_ptr<OpenListFactory>, const std::shared_ptr<PluginBuilder<Evaluator>>>
 create_astar_open_list_factory_and_f_eval_builder(const options::Options &opts);
 }
 

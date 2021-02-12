@@ -2,6 +2,7 @@
 
 #include "g_evaluator.h"
 
+#include "../evaluator.h"
 #include "../option_parser.h"
 #include "../plugin.h"
 
@@ -9,11 +10,11 @@ using namespace std;
 
 namespace g_evaluator {
 shared_ptr<Evaluator> GEvaluatorBuilder::build(
-    PluginVariables &, const shared_ptr<AbstractTask> &task) const {
+    PluginVariableAssignment &, const shared_ptr<AbstractTask> &task) const {
     return make_shared<GEvaluator>(task);
 }
 
-static shared_ptr<EvaluatorBuilder> _parse(OptionParser &parser) {
+static shared_ptr<PluginBuilder<Evaluator>> _parse(OptionParser &parser) {
     parser.document_synopsis(
         "g-value evaluator",
         "Returns the g-value (path cost) of the search node.");
@@ -24,5 +25,5 @@ static shared_ptr<EvaluatorBuilder> _parse(OptionParser &parser) {
         return make_shared<GEvaluatorBuilder>();
 }
 
-static Plugin<EvaluatorBuilder> _plugin("g", _parse, "evaluators_basic");
+static Plugin<PluginBuilder<Evaluator>> _plugin("g", _parse, "evaluators_basic");
 }

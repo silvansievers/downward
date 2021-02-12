@@ -41,14 +41,14 @@ static int parse_int_arg(const string &name, const string &value) {
     }
 }
 
-static shared_ptr<SearchEngineBuilder> parse_cmd_line_aux(
+static shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line_aux(
     const vector<string> &args, options::Registry &registry, bool dry_run) {
     string plan_filename = "sas_plan";
     int num_previously_generated_plans = 0;
 //    bool is_part_of_anytime_portfolio = false;
     options::Predefinitions predefinitions;
 
-    shared_ptr<SearchEngineBuilder> engine;
+    shared_ptr<PluginBuilder<SearchEngine>> engine;
     /*
       Note that we don’t sanitize all arguments beforehand because filenames should remain as-is
       (no conversion to lower-case, no conversion of newlines to spaces).
@@ -63,7 +63,7 @@ static shared_ptr<SearchEngineBuilder> parse_cmd_line_aux(
             ++i;
             OptionParser parser(sanitize_arg_string(args[i]), registry,
                                 predefinitions, dry_run);
-            engine = parser.start_parsing<shared_ptr<SearchEngineBuilder>>();
+            engine = parser.start_parsing<shared_ptr<PluginBuilder<SearchEngine>>>();
         } else if (arg == "--help" && dry_run) {
             cout << "Help:" << endl;
             bool txt2tags = false;
@@ -128,7 +128,7 @@ static shared_ptr<SearchEngineBuilder> parse_cmd_line_aux(
 }
 
 
-shared_ptr<SearchEngineBuilder> parse_cmd_line(
+shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line(
     int argc, const char **argv, options::Registry &registry, bool dry_run, bool is_unit_cost) {
     vector<string> args;
     bool active = true;

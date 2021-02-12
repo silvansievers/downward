@@ -12,19 +12,19 @@ using namespace std;
 
 namespace sum_evaluator {
 SumEvaluatorBuilder::SumEvaluatorBuilder(const Options &opts)
-    : CombiningEvaluatorBuilder(opts.get_list<shared_ptr<EvaluatorBuilder>>("evals")) {
+    : CombiningEvaluatorBuilder(opts.get_list<shared_ptr<PluginBuilder<Evaluator>>>("evals")) {
 }
 
-SumEvaluatorBuilder::SumEvaluatorBuilder(const vector<shared_ptr<EvaluatorBuilder>> &evals)
+SumEvaluatorBuilder::SumEvaluatorBuilder(const vector<shared_ptr<PluginBuilder<Evaluator>>> &evals)
     : CombiningEvaluatorBuilder(evals) {
 }
 
 shared_ptr<Evaluator> SumEvaluatorBuilder::build(
-    PluginVariables &variable_context,
+    PluginVariableAssignment &variable_context,
     const std::shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> evaluators;
     for (auto &subeval : subevaluators) { // TODO: could directly get from options
-        evaluators.push_back(subeval->get_built_element(variable_context, task));
+        evaluators.push_back(subeval->build(variable_context, task));
     }
     return make_shared<SumEvaluator>(task, evaluators);
 }
@@ -34,10 +34,10 @@ static shared_ptr<SumEvaluatorBuilder> _parse(OptionParser &parser) {
     parser.document_synopsis("Sum evaluator",
                              "Calculates the sum of the sub-evaluators.");
 
-    parser.add_list_option<shared_ptr<EvaluatorBuilder>>("evals", "at least one evaluator");
+    parser.add_list_option<shared_ptr<PluginBuilder<Evaluator>>>("evals", "at least one evaluator");
     Options opts = parser.parse();
 
-    opts.verify_list_non_empty<shared_ptr<EvaluatorBuilder>>("evals");
+    opts.verify_list_non_empty<shared_ptr<PluginBuilder<Evaluator>>>("evals");
 
     if (parser.dry_run())
         return nullptr;
@@ -45,5 +45,5 @@ static shared_ptr<SumEvaluatorBuilder> _parse(OptionParser &parser) {
         return make_shared<SumEvaluatorBuilder>(opts);
 }
 
-static Plugin<EvaluatorBuilder> _plugin("sum", _parse, "evaluators_basic");
+static Plugin<PluginBuilder<Evaluator>> _plugin("sum", _parse, "evaluators_basic");
 }

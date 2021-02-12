@@ -1,8 +1,8 @@
-#include "evaluator_builder.h"
-
+#include "evaluator.h"
 #include "plugin.h"
+#include "plugin_builder.h"
 
-static PluginTypePlugin<EvaluatorBuilder> _type_plugin(
+static PluginTypePlugin<PluginBuilder<Evaluator>> _type_plugin(
     "Evaluator",
     "An evaluator specification is either a newly created evaluator "
     "instance or an evaluator that has been defined previously. "

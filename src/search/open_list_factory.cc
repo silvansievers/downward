@@ -7,7 +7,7 @@ using namespace std;
 
 template<>
 unique_ptr<StateOpenList> OpenListFactory::create_open_list(
-    PluginVariables &variable_context, const shared_ptr<AbstractTask> &task) {
+    PluginVariableAssignment &variable_context, const shared_ptr<AbstractTask> &task) {
     return create_state_open_list(variable_context, task);
 }
 

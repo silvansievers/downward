@@ -19,11 +19,11 @@ BlindSearchHeuristicBuilder::BlindSearchHeuristicBuilder(const options::Options 
 }
 
 shared_ptr<Evaluator> BlindSearchHeuristicBuilder::build(
-    PluginVariables &, const shared_ptr<AbstractTask> &task) const {
+    PluginVariableAssignment &, const shared_ptr<AbstractTask> &task) const {
     return make_shared<BlindSearchHeuristic>(task, cache_estimates, name);
 }
 
-static shared_ptr<HeuristicBuilder> _parse(OptionParser &parser) {
+static shared_ptr<PluginBuilder<Evaluator>> _parse(OptionParser &parser) {
     parser.document_synopsis("Blind heuristic",
                              "Returns cost of cheapest action for "
                              "non-goal states, "
@@ -44,5 +44,5 @@ static shared_ptr<HeuristicBuilder> _parse(OptionParser &parser) {
         return make_shared<BlindSearchHeuristicBuilder>(opts);
 }
 
-static Plugin<EvaluatorBuilder> _plugin("blind", _parse);
+static Plugin<PluginBuilder<Evaluator>> _plugin("blind", _parse);
 }

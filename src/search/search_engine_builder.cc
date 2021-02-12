@@ -71,7 +71,7 @@ void add_search_succ_order_options(OptionParser &parser) {
     utils::add_rng_options(parser);
 }
 
-static PluginTypePlugin<SearchEngineBuilder> _type_plugin(
+static PluginTypePlugin<PluginBuilder<SearchEngine>> _type_plugin(
     "SearchEngine",
     // TODO: Replace empty string by synopsis for the wiki page.
     "");

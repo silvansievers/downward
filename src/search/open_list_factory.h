@@ -2,7 +2,7 @@
 #define OPEN_LIST_FACTORY_H
 
 #include "open_list.h"
-#include "plugin_variables.h"
+#include "plugin_variable_assignment.h"
 
 #include <memory>
 
@@ -20,7 +20,7 @@ public:
     OpenListFactory(const OpenListFactory &) = delete;
 
     virtual std::unique_ptr<StateOpenList> create_state_open_list(
-        PluginVariables &variable_context,
+        PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) = 0;
     //virtual std::unique_ptr<EdgeOpenList> create_edge_open_list() = 0;
 
@@ -32,7 +32,7 @@ public:
     */
     template<typename T>
     std::unique_ptr<OpenList<T>> create_open_list(
-        PluginVariables &variable_context,
+        PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task);
 };
 

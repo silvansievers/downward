@@ -6,6 +6,7 @@
 #include "predefinitions.h"
 #include "registries.h"
 
+#include "../plugin_variable_builder.h"
 #include "../utils/math.h"
 #include "../utils/strings.h"
 
@@ -136,6 +137,12 @@ public:
 };
 
 template<typename T>
+class TokenParser<std::shared_ptr<PluginBuilder<T>>> {
+public:
+    static inline std::shared_ptr<PluginBuilder<T>> parse(OptionParser &parser);
+};
+
+template<typename T>
 class TokenParser<std::vector<T>> {
 public:
     static inline std::vector<T> parse(OptionParser &parser);
@@ -249,6 +256,18 @@ inline std::shared_ptr<T> TokenParser<std::shared_ptr<T>>::parse(OptionParser &p
         return result;
     return lookup_in_registry<T>(parser);
 }
+
+template<typename T>
+inline std::shared_ptr<PluginBuilder<T>> TokenParser<std::shared_ptr<PluginBuilder<T>>>::parse(OptionParser &parser) {
+    const std::string &value = parser.get_root_value();
+    // HACK: we should not abuse the predefinitions to check for variables.
+    if (parser.get_predefinitions().contains(value)) {
+        return std::make_shared<PluginVariableBuilder<T>>(value);
+    } else {
+        return lookup_in_registry<PluginBuilder<T>>(parser);
+    }
+}
+
 
 // Needed for iterated search.
 template<>
@@ -446,7 +465,8 @@ void predefine_plugin(const std::string &arg, Registry &registry,
     utils::strip(value);
 
     OptionParser parser(value, registry, predefinitions, dry_run);
-    predefinitions.predefine(key, parser.start_parsing<std::shared_ptr<T>>());
+    // HACK
+    predefinitions.predefine(key, nullptr);
 }
 }
 
