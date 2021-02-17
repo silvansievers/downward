@@ -14,39 +14,23 @@
 class AbstractTask;
 
 class PluginVariableAssignment {
-    // Map variable names to currently stored values.
     std::unordered_map<std::string, options::Any> storage;
-    /*
-      List of the pushed variable names, together with its shadowed value.
-      Example:
-        context.push("x", 42); // storage == {x: 42}; stack == [(x, Any())]
-        context.push("x", 23); // storage == {x: 23}; stack == [(x, Any()), (x, 42)]
-        context.push("x", 5);  // storage == {x: 5};  stack == [(x, Any()), (x, 42), (x, 23)]
-        context.pop();         // storage == {x: 23}; stack == [(x, Any()), (x, 42)]
-    */
-    std::vector<std::pair<std::string, options::Any>> stack;
 public:
+    /*
+     * TODO: We currently force unique variable names, which can potentially change
+     * once we have rewritten the option parser.
+     */
     template<typename T>
-    void push(const std::string &key, const std::shared_ptr<PluginBuilder<T>> &value) {
-        options::Any previous_value;
-        const auto it = storage.find(key);
-        if (it != storage.end()) {
-            previous_value = std::move(it->second);
+    void set(const std::string &key, const std::shared_ptr<PluginBuilder<T>> &value) {
+        if (storage.count(key) > 0) {
+            std::cerr << "variable " << key << " is not unique." << std::endl;
+            utils::exit_with(utils::ExitCode::SEARCH_INPUT_ERROR);
         }
-        stack.push_back(std::make_pair(key, std::move(previous_value)));
         storage[key] = value;
     }
 
-    void pop() {
-        const auto &removed = stack.back();
-        std::string removed_key = removed.first;
-        options::Any shadowed_value = std::move(removed.second);
-        stack.pop_back();
-        if (shadowed_value.type() == typeid(void)) {
-            storage.erase(removed_key);
-        } else {
-            storage[removed_key] = std::move(shadowed_value);
-        }
+    void unset(const std::string &key) {
+        storage.erase(key);
     }
 
     template<typename T>

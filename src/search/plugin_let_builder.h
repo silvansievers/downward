@@ -34,9 +34,9 @@ template<typename VarType, typename ReturnType>
 inline std::shared_ptr<ReturnType> PluginLetBuilder<VarType, ReturnType>::build(
     PluginVariableAssignment &variable_context,
     const std::shared_ptr<AbstractTask> &task) const {
-    variable_context.push(name, element_builder);
+    variable_context.set(name, element_builder);
     std::shared_ptr<ReturnType> result = nested_builder->build(variable_context, task);
-    variable_context.pop();
+    variable_context.unset(name);
     return result;
 }
 

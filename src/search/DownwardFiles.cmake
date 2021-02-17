@@ -558,6 +558,7 @@ fast_downward_plugin(
     HELP "The LM-cut heuristic"
     SOURCES
         heuristics/lm_cut_heuristic
+        heuristics/lm_cut_heuristic_builder
         heuristics/lm_cut_landmarks
     DEPENDS PRIORITY_QUEUES TASK_PROPERTIES
 )
