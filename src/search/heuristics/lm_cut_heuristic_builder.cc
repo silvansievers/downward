@@ -14,7 +14,7 @@ LandmarkCutHeuristicBuilder::LandmarkCutHeuristicBuilder(const options::Options 
     : HeuristicBuilder(opts) {
 }
 
-shared_ptr<Evaluator> LandmarkCutHeuristicBuilder::build(
+shared_ptr<Evaluator> LandmarkCutHeuristicBuilder::create(
     PluginVariableAssignment &, const shared_ptr<AbstractTask> &task) const {
     return make_shared<LandmarkCutHeuristic>(task, cache_estimates, name);
 }

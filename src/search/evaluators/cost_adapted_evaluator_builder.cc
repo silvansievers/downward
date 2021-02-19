@@ -12,7 +12,7 @@ CostadaptedEvaluatorBuilder::CostadaptedEvaluatorBuilder(const options::Options 
       cost_type(opts.get<OperatorCost>("cost_type")) {
 }
 
-shared_ptr<Evaluator> CostadaptedEvaluatorBuilder::build(
+shared_ptr<Evaluator> CostadaptedEvaluatorBuilder::create(
     PluginVariableAssignment &variable_context,
     const shared_ptr<AbstractTask> &task) const {
     shared_ptr<AbstractTask> cost_adapted_task =

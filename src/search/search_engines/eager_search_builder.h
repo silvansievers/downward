@@ -16,7 +16,7 @@ class EagerSearchBuilder : public SearchEngineBuilder {
     std::vector<std::shared_ptr<PluginBuilder<Evaluator>>> preferred_operator_evaluator_builders;
     std::shared_ptr<PluginBuilder<Evaluator>> lazy_evaluator_builder;
 protected:
-    virtual std::shared_ptr<SearchEngine> build(
+    virtual std::shared_ptr<SearchEngine> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 public:

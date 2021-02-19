@@ -10,7 +10,7 @@
 using namespace std;
 
 namespace null_pruning_method {
-shared_ptr<PruningMethod> NullPruningMethodBuilder::build(
+shared_ptr<PruningMethod> NullPruningMethodBuilder::create(
     PluginVariableAssignment &, const shared_ptr<AbstractTask> &) const {
     return make_shared<NullPruningMethod>();
 }

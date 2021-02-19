@@ -17,7 +17,7 @@ public:
         std::string name,
         const std::shared_ptr<PluginBuilder<VarType>> &element_builder,
         const std::shared_ptr<PluginBuilder<ReturnType>> &nested_builder);
-    virtual std::shared_ptr<ReturnType> build(
+    virtual std::shared_ptr<ReturnType> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 };
@@ -31,7 +31,7 @@ inline PluginLetBuilder<VarType, ReturnType>::PluginLetBuilder(
 }
 
 template<typename VarType, typename ReturnType>
-inline std::shared_ptr<ReturnType> PluginLetBuilder<VarType, ReturnType>::build(
+inline std::shared_ptr<ReturnType> PluginLetBuilder<VarType, ReturnType>::create(
     PluginVariableAssignment &variable_context,
     const std::shared_ptr<AbstractTask> &task) const {
     variable_context.set(name, element_builder);

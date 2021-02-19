@@ -56,6 +56,8 @@ int main(int argc, const char **argv) {
     PluginVariableAssignment variable_context;
     shared_ptr<SearchEngine> engine = engine_builder->build(
             variable_context, tasks::g_root_task);
+    // TODO: is reset the right call? I want to delete the engine builder
+    engine_builder.reset();
 
     utils::Timer search_timer;
     engine->search();

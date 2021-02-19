@@ -8,7 +8,7 @@ class PruningMethod;
 namespace null_pruning_method {
 class NullPruningMethodBuilder : public PluginBuilder<PruningMethod> {
 protected:
-    virtual std::shared_ptr<PruningMethod> build(
+    virtual std::shared_ptr<PruningMethod> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 

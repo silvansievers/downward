@@ -12,7 +12,7 @@ class PluginVariableBuilder : public PluginBuilder<T> {
 public:
     explicit PluginVariableBuilder(const std::string &name);
 
-    virtual std::shared_ptr<T> build(
+    virtual std::shared_ptr<T> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 };
@@ -23,7 +23,7 @@ inline PluginVariableBuilder<T>::PluginVariableBuilder(const std::string &name)
 }
 
 template<typename T>
-inline std::shared_ptr<T> PluginVariableBuilder<T>::build(
+inline std::shared_ptr<T> PluginVariableBuilder<T>::create(
     PluginVariableAssignment &variable_context,
     const std::shared_ptr<AbstractTask> &task) const {
     return variable_context.get<T>(name, task);

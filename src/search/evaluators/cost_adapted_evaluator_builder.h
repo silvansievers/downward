@@ -15,7 +15,7 @@ class CostadaptedEvaluatorBuilder : public PluginBuilder<Evaluator> {
     std::shared_ptr<PluginBuilder<Evaluator>> child_evaluator_builder;
     OperatorCost cost_type;
 protected:
-    virtual std::shared_ptr<Evaluator> build(
+    virtual std::shared_ptr<Evaluator> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 public:

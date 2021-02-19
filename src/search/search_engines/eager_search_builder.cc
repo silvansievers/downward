@@ -20,7 +20,7 @@ EagerSearchBuilder::EagerSearchBuilder(const options::Options &opts)
       lazy_evaluator_builder(opts.get<shared_ptr<PluginBuilder<Evaluator>>>("lazy_evaluator", nullptr)) {
 }
 
-shared_ptr<SearchEngine> EagerSearchBuilder::build(
+shared_ptr<SearchEngine> EagerSearchBuilder::create(
     PluginVariableAssignment &variable_context, const shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> preferred_operator_evaluators;
     preferred_operator_evaluators.reserve(preferred_operator_evaluator_builders.size());

@@ -19,7 +19,7 @@ SumEvaluatorBuilder::SumEvaluatorBuilder(const vector<shared_ptr<PluginBuilder<E
     : CombiningEvaluatorBuilder(evals) {
 }
 
-shared_ptr<Evaluator> SumEvaluatorBuilder::build(
+shared_ptr<Evaluator> SumEvaluatorBuilder::create(
     PluginVariableAssignment &variable_context,
     const std::shared_ptr<AbstractTask> &task) const {
     vector<shared_ptr<Evaluator>> evaluators;

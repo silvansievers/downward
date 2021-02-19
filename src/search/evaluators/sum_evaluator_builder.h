@@ -10,7 +10,7 @@ class Options;
 namespace sum_evaluator {
 class SumEvaluatorBuilder : public combining_evaluator::CombiningEvaluatorBuilder {
 protected:
-    virtual std::shared_ptr<Evaluator> build(
+    virtual std::shared_ptr<Evaluator> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 public:

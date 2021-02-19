@@ -8,7 +8,7 @@ class Evaluator;
 namespace g_evaluator {
 class GEvaluatorBuilder : public PluginBuilder<Evaluator> {
 protected:
-    virtual std::shared_ptr<Evaluator> build(
+    virtual std::shared_ptr<Evaluator> create(
         PluginVariableAssignment &variable_context,
         const std::shared_ptr<AbstractTask> &task) const override;
 };
