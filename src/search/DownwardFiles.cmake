@@ -75,6 +75,7 @@ fast_downward_plugin(
         plugin_variable_builder
         plugin_variable_assignment
         pruning_method
+        pruning_method_builder
         search_engine
         search_engine_builder
         search_node_info
@@ -336,6 +337,7 @@ fast_downward_plugin(
     HELP "Pruning method that does nothing"
     SOURCES
         pruning/null_pruning_method
+        pruning/null_pruning_method_builder
     DEPENDENCY_ONLY
 )
 

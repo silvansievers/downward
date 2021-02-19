@@ -46,9 +46,12 @@ static shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line_aux(
     string plan_filename = "sas_plan";
     int num_previously_generated_plans = 0;
 //    bool is_part_of_anytime_portfolio = false;
-    options::Predefinitions predefinitions;
-
+//    options::Predefinitions predefinitions;
+    unordered_map<string,string> predefinitions;
+    unordered_set<string> variable_names;
+    string search_string;
     shared_ptr<PluginBuilder<SearchEngine>> engine;
+
     /*
       Note that we don’t sanitize all arguments beforehand because filenames should remain as-is
       (no conversion to lower-case, no conversion of newlines to spaces).
@@ -61,9 +64,10 @@ static shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line_aux(
             if (is_last)
                 throw ArgError("missing argument after --search");
             ++i;
-            OptionParser parser(sanitize_arg_string(args[i]), registry,
-                                predefinitions, dry_run);
-            engine = parser.start_parsing<shared_ptr<PluginBuilder<SearchEngine>>>();
+            search_string = sanitize_arg_string(args[i]);
+//            OptionParser parser(sanitize_arg_string(args[i]), registry,
+//                                predefinitions, dry_run);
+//            engine = parser.start_parsing<shared_ptr<PluginBuilder<SearchEngine>>>();
         } else if (arg == "--help" && dry_run) {
             cout << "Help:" << endl;
             bool txt2tags = false;
@@ -110,13 +114,39 @@ static shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line_aux(
             if (is_last)
                 throw ArgError("missing argument after " + arg);
             ++i;
-            registry.handle_predefinition(arg.substr(2),
-                                          sanitize_arg_string(args[i]),
-                                          predefinitions, dry_run);
+            std::pair<std::string, std::string> predefinition;
+            try {
+                predefinition = utils::split(args[i], "=");
+            } catch (utils::StringOperationError &) {
+                throw OptionParserError("Predefinition error: Predefinition has to be "
+                                        "of the form [name]=[definition].");
+            }
+
+            std::string key = predefinition.first;
+            std::string value = predefinition.second;
+            utils::strip(key);
+            utils::strip(value);
+            variable_names.insert(key);
+            predefinitions.insert(make_pair(key,value));
         } else {
             throw ArgError("unknown option " + arg);
         }
     }
+
+    for (auto predefinition : predefinitions) {
+        search_string = "let(" + predefinition.first +
+            ", " + predefinition.second + ", " + search_string + ")";
+    }
+
+
+    /*
+      HACK: we currently do not test whether predefinition types match,
+      that is we could call "--landmarks h=lmcut() --search "astar(h)"
+      and it would work.
+    */
+    OptionParser parser(search_string, registry,
+                        variable_names, dry_run);
+    engine = parser.start_parsing<shared_ptr<PluginBuilder<SearchEngine>>>();
 
 //    if (engine) {
 //        PlanManager &plan_manager = engine->get_plan_manager();

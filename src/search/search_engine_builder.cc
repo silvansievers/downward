@@ -25,7 +25,7 @@ SearchEngineBuilder::SearchEngineBuilder(
    Method doesn't belong here because it's only useful for certain derived classes.
    TODO: Figure out where it belongs and move it there. */
 void add_search_pruning_option(OptionParser &parser) {
-    parser.add_option<shared_ptr<PruningMethod>>(
+    parser.add_option<shared_ptr<PluginBuilder<PruningMethod>>>(
         "pruning",
         "Pruning methods can prune or reorder the set of applicable operators in "
         "each state and thereby influence the number and order of successor states "
