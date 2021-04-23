@@ -1,7 +1,6 @@
 #include "blind_search_heuristic.h"
 
 #include "../option_parser.h"
-#include "../plugin.h"
 
 #include "../task_utils/task_properties.h"
 #include "../utils/logging.h"
@@ -13,8 +12,9 @@
 using namespace std;
 
 namespace blind_search_heuristic {
-BlindSearchHeuristic::BlindSearchHeuristic(const Options &opts)
-    : Heuristic(opts),
+BlindSearchHeuristic::BlindSearchHeuristic(
+    const shared_ptr<AbstractTask> &task, bool cache_estimates, const string &name)
+    : Heuristic(task, cache_estimates, name),
       min_operator_cost(task_properties::get_min_operator_cost(task_proxy)) {
     utils::g_log << "Initializing blind search heuristic..." << endl;
 }
@@ -29,27 +29,4 @@ int BlindSearchHeuristic::compute_heuristic(const State &ancestor_state) {
     else
         return min_operator_cost;
 }
-
-static shared_ptr<Heuristic> _parse(OptionParser &parser) {
-    parser.document_synopsis("Blind heuristic",
-                             "Returns cost of cheapest action for "
-                             "non-goal states, "
-                             "0 for goal states");
-    parser.document_language_support("action costs", "supported");
-    parser.document_language_support("conditional effects", "supported");
-    parser.document_language_support("axioms", "supported");
-    parser.document_property("admissible", "yes");
-    parser.document_property("consistent", "yes");
-    parser.document_property("safe", "yes");
-    parser.document_property("preferred operators", "no");
-
-    Heuristic::add_options_to_parser(parser);
-    Options opts = parser.parse();
-    if (parser.dry_run())
-        return nullptr;
-    else
-        return make_shared<BlindSearchHeuristic>(opts);
-}
-
-static Plugin<Evaluator> _plugin("blind", _parse);
 }

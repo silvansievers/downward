@@ -61,7 +61,7 @@ protected:
     bool check_goal_and_set_plan(const State &state);
     int get_adjusted_cost(const OperatorProxy &op) const;
 public:
-    SearchEngine(const options::Options &opts);
+    SearchEngine(int bound, double max_time, OperatorCost cost_type, utils::Verbosity verbosity);
     virtual ~SearchEngine();
     virtual void print_statistics() const = 0;
     virtual void save_plan_if_necessary();
@@ -73,12 +73,6 @@ public:
     void set_bound(int b) {bound = b;}
     int get_bound() {return bound;}
     PlanManager &get_plan_manager() {return plan_manager;}
-
-    /* The following three methods should become functions as they
-       do not require access to private/protected class members. */
-    static void add_pruning_option(options::OptionParser &parser);
-    static void add_options_to_parser(options::OptionParser &parser);
-    static void add_succ_order_options(options::OptionParser &parser);
 };
 
 /*

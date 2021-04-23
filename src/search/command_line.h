@@ -1,6 +1,7 @@
 #ifndef COMMAND_LINE_H
 #define COMMAND_LINE_H
 
+#include "plugin_builder.h"
 #include "utils/exceptions.h"
 
 #include <memory>
@@ -20,7 +21,7 @@ public:
     virtual void print() const override;
 };
 
-extern std::shared_ptr<SearchEngine> parse_cmd_line(
+extern std::shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line(
     int argc, const char **argv, options::Registry &registry, bool dry_run,
     bool is_unit_cost);
 

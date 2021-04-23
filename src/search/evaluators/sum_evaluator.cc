@@ -9,12 +9,10 @@
 using namespace std;
 
 namespace sum_evaluator {
-SumEvaluator::SumEvaluator(const Options &opts)
-    : CombiningEvaluator(opts.get_list<shared_ptr<Evaluator>>("evals")) {
-}
-
-SumEvaluator::SumEvaluator(const vector<shared_ptr<Evaluator>> &evals)
-    : CombiningEvaluator(evals) {
+SumEvaluator::SumEvaluator(
+    const std::shared_ptr<AbstractTask> &task,
+    const vector<shared_ptr<Evaluator>> &evals)
+    : combining_evaluator::CombiningEvaluator(task, evals) {
 }
 
 SumEvaluator::~SumEvaluator() {
@@ -29,21 +27,4 @@ int SumEvaluator::combine_values(const vector<int> &values) {
     }
     return result;
 }
-
-static shared_ptr<Evaluator> _parse(OptionParser &parser) {
-    parser.document_synopsis("Sum evaluator",
-                             "Calculates the sum of the sub-evaluators.");
-
-    parser.add_list_option<shared_ptr<Evaluator>>("evals", "at least one evaluator");
-    Options opts = parser.parse();
-
-    opts.verify_list_non_empty<shared_ptr<Evaluator>>("evals");
-
-    if (parser.dry_run())
-        return nullptr;
-    else
-        return make_shared<SumEvaluator>(opts);
-}
-
-static Plugin<Evaluator> _plugin("sum", _parse, "evaluators_basic");
 }

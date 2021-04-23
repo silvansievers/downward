@@ -15,12 +15,11 @@
 
 using namespace std;
 
-Heuristic::Heuristic(const Options &opts)
-    : Evaluator(opts.get_unparsed_config(), true, true, true),
+Heuristic::Heuristic(
+    const shared_ptr<AbstractTask> &task, bool cache_estimates, const string &name)
+    : Evaluator(task, name, true, true, true),
       heuristic_cache(HEntry(NO_VALUE, true)), //TODO: is true really a good idea here?
-      cache_evaluator_values(opts.get<bool>("cache_estimates")),
-      task(opts.get<shared_ptr<AbstractTask>>("transform")),
-      task_proxy(*task) {
+      cache_evaluator_values(cache_estimates) {
 }
 
 Heuristic::~Heuristic() {
@@ -32,15 +31,6 @@ void Heuristic::set_preferred(const OperatorProxy &op) {
 
 State Heuristic::convert_ancestor_state(const State &ancestor_state) const {
     return task_proxy.convert_ancestor_state(ancestor_state);
-}
-
-void Heuristic::add_options_to_parser(OptionParser &parser) {
-    parser.add_option<shared_ptr<AbstractTask>>(
-        "transform",
-        "Optional task transformation for the heuristic."
-        " Currently, adapt_costs() and no_transform() are available.",
-        "no_transform()");
-    parser.add_option<bool>("cache_estimates", "cache heuristic estimates", "true");
 }
 
 EvaluationResult Heuristic::compute_result(EvaluationContext &eval_context) {

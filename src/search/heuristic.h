@@ -54,11 +54,6 @@ protected:
     PerStateInformation<HEntry> heuristic_cache;
     bool cache_evaluator_values;
 
-    // Hold a reference to the task implementation and pass it to objects that need it.
-    const std::shared_ptr<AbstractTask> task;
-    // Use task_proxy to access task information.
-    TaskProxy task_proxy;
-
     enum {DEAD_END = -1, NO_VALUE = -2};
 
     virtual int compute_heuristic(const State &ancestor_state) = 0;
@@ -73,14 +68,15 @@ protected:
     State convert_ancestor_state(const State &ancestor_state) const;
 
 public:
-    explicit Heuristic(const options::Options &opts);
+    Heuristic(
+        const std::shared_ptr<AbstractTask> &task,
+        bool cache_estimates,
+        const std::string &name);
     virtual ~Heuristic() override;
 
     virtual void get_path_dependent_evaluators(
         std::set<Evaluator *> & /*evals*/) override {
     }
-
-    static void add_options_to_parser(options::OptionParser &parser);
 
     virtual EvaluationResult compute_result(
         EvaluationContext &eval_context) override;

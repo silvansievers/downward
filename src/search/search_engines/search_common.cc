@@ -4,10 +4,12 @@
 #include "../option_parser_util.h"
 
 #include "../evaluators/g_evaluator.h"
+#include "../evaluators/g_evaluator_builder.h"
 #include "../evaluators/sum_evaluator.h"
+#include "../evaluators/sum_evaluator_builder.h"
 #include "../evaluators/weighted_evaluator.h"
 
-#include "../open_lists/alternation_open_list.h"
+//#include "../open_lists/alternation_open_list.h"
 #include "../open_lists/best_first_open_list.h"
 #include "../open_lists/tiebreaking_open_list.h"
 
@@ -20,6 +22,7 @@ using GEval = g_evaluator::GEvaluator;
 using SumEval = sum_evaluator::SumEvaluator;
 using WeightedEval = weighted_evaluator::WeightedEvaluator;
 
+/*
 shared_ptr<OpenListFactory> create_standard_scalar_open_list_factory(
     const shared_ptr<Evaluator> &eval, bool pref_only) {
     Options options;
@@ -35,11 +38,13 @@ static shared_ptr<OpenListFactory> create_alternation_open_list_factory(
     options.set("boost", boost);
     return make_shared<alternation_open_list::AlternationOpenListFactory>(options);
 }
+*/
 
 /*
   Helper function for common code of create_greedy_open_list_factory
   and create_wastar_open_list_factory.
 */
+/*
 static shared_ptr<OpenListFactory> create_alternation_open_list_factory_aux(
     const vector<shared_ptr<Evaluator>> &evals,
     const vector<shared_ptr<Evaluator>> &preferred_evaluators,
@@ -61,7 +66,9 @@ static shared_ptr<OpenListFactory> create_alternation_open_list_factory_aux(
         return create_alternation_open_list_factory(subfactories, boost);
     }
 }
+*/
 
+/*
 shared_ptr<OpenListFactory> create_greedy_open_list_factory(
     const Options &options) {
     return create_alternation_open_list_factory_aux(
@@ -69,6 +76,7 @@ shared_ptr<OpenListFactory> create_greedy_open_list_factory(
         options.get_list<shared_ptr<Evaluator>>("preferred"),
         options.get<int>("boost"));
 }
+*/
 
 /*
   Helper function for creating a single g + w * h evaluator
@@ -80,6 +88,7 @@ shared_ptr<OpenListFactory> create_greedy_open_list_factory(
   If w = 0, we omit the h-evaluator altogether:
   we use g instead of g + 0 * h.
 */
+/*
 static shared_ptr<Evaluator> create_wastar_eval(const shared_ptr<GEval> &g_eval, int w,
                                                 const shared_ptr<Evaluator> &h_eval) {
     if (w == 0)
@@ -109,20 +118,23 @@ shared_ptr<OpenListFactory> create_wastar_open_list_factory(
         options.get_list<shared_ptr<Evaluator>>("preferred"),
         options.get<int>("boost"));
 }
+*/
 
-pair<shared_ptr<OpenListFactory>, const shared_ptr<Evaluator>>
-create_astar_open_list_factory_and_f_eval(const Options &opts) {
-    shared_ptr<GEval> g = make_shared<GEval>();
-    shared_ptr<Evaluator> h = opts.get<shared_ptr<Evaluator>>("eval");
-    shared_ptr<Evaluator> f = make_shared<SumEval>(vector<shared_ptr<Evaluator>>({g, h}));
-    vector<shared_ptr<Evaluator>> evals = {f, h};
+pair<shared_ptr<OpenListFactory>, const shared_ptr<PluginBuilder<Evaluator>>>
+create_astar_open_list_factory_and_f_eval_builder(const Options &opts) {
+    shared_ptr<PluginBuilder<Evaluator>> g_builder = make_shared<g_evaluator::GEvaluatorBuilder>();
+    shared_ptr<PluginBuilder<Evaluator>> h_builder = opts.get<shared_ptr<PluginBuilder<Evaluator>>>("eval");
+    shared_ptr<PluginBuilder<Evaluator>> f_builder =
+        make_shared<sum_evaluator::SumEvaluatorBuilder>(
+            vector<shared_ptr<PluginBuilder<Evaluator>>>({g_builder, h_builder}));
+    vector<shared_ptr<PluginBuilder<Evaluator>>> eval_builders = {f_builder, h_builder};
 
     Options options;
-    options.set("evals", evals);
+    options.set("evals", eval_builders);
     options.set("pref_only", false);
     options.set("unsafe_pruning", false);
     shared_ptr<OpenListFactory> open =
         make_shared<tiebreaking_open_list::TieBreakingOpenListFactory>(options);
-    return make_pair(open, f);
+    return make_pair(open, f_builder);
 }
 }

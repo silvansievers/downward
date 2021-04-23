@@ -1,4 +1,4 @@
-#include "eager_search.h"
+#include "eager_search_builder.h"
 #include "search_common.h"
 
 #include "../option_parser.h"
@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace plugin_eager {
-static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
+static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
     parser.document_synopsis("Eager best-first search", "");
 
     parser.add_option<shared_ptr<OpenListFactory>>("open", "open list");
@@ -25,13 +25,13 @@ static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
     eager_search::add_options_to_parser(parser);
     Options opts = parser.parse();
 
-    shared_ptr<eager_search::EagerSearch> engine;
+    shared_ptr<eager_search::EagerSearchBuilder> engine;
     if (!parser.dry_run()) {
-        engine = make_shared<eager_search::EagerSearch>(opts);
+        engine = make_shared<eager_search::EagerSearchBuilder>(opts);
     }
 
     return engine;
 }
 
-static Plugin<SearchEngine> _plugin("eager", _parse);
+static Plugin<SearchEngineBuilder> _plugin("eager", _parse);
 }

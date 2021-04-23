@@ -11,13 +11,13 @@ class StateID;
 
 template<class Entry>
 class OpenList {
-    bool only_preferred;
+    bool preferred_only;
 
 protected:
     /*
       Insert an entry into the open list. This is called by insert, so
       see comments there. This method will not be called if
-      is_dead_end() is true or if only_preferred is true and the entry
+      is_dead_end() is true or if preferred_only is true and the entry
       to be inserted is not preferred. Hence, these conditions need
       not be checked by the implementation.
     */
@@ -91,7 +91,7 @@ public:
         std::set<Evaluator *> &evals) = 0;
 
     /*
-      Accessor method for only_preferred.
+      Accessor method for preferred_only.
 
       The only use case for this at the moment is for alternation open
       lists, which boost those sublists which only include preferred
@@ -134,8 +134,8 @@ using EdgeOpenList = OpenList<EdgeOpenListEntry>;
 
 
 template<class Entry>
-OpenList<Entry>::OpenList(bool only_preferred)
-    : only_preferred(only_preferred) {
+OpenList<Entry>::OpenList(bool preferred_only)
+    : preferred_only(preferred_only) {
 }
 
 template<class Entry>
@@ -145,7 +145,7 @@ void OpenList<Entry>::boost_preferred() {
 template<class Entry>
 void OpenList<Entry>::insert(
     EvaluationContext &eval_context, const Entry &entry) {
-    if (only_preferred && !eval_context.is_preferred())
+    if (preferred_only && !eval_context.is_preferred())
         return;
     if (!is_dead_end(eval_context))
         do_insertion(eval_context, entry);
@@ -153,7 +153,7 @@ void OpenList<Entry>::insert(
 
 template<class Entry>
 bool OpenList<Entry>::only_contains_preferred_entries() const {
-    return only_preferred;
+    return preferred_only;
 }
 
 #endif

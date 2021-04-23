@@ -1,4 +1,4 @@
-#include "eager_search.h"
+#include "eager_search_builder.h"
 #include "search_common.h"
 
 #include "../option_parser.h"
@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace plugin_eager_greedy {
-static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
+static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
     parser.document_synopsis("Greedy search (eager)", "");
     parser.document_note(
         "Open list",
@@ -59,16 +59,16 @@ static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
     Options opts = parser.parse();
     opts.verify_list_non_empty<shared_ptr<Evaluator>>("evals");
 
-    shared_ptr<eager_search::EagerSearch> engine;
+    shared_ptr<eager_search::EagerSearchBuilder> engine;
     if (!parser.dry_run()) {
         opts.set("open", search_common::create_greedy_open_list_factory(opts));
         opts.set("reopen_closed", false);
         shared_ptr<Evaluator> evaluator = nullptr;
         opts.set("f_eval", evaluator);
-        engine = make_shared<eager_search::EagerSearch>(opts);
+        engine = make_shared<eager_search::EagerSearchBuilder>(opts);
     }
     return engine;
 }
 
-static Plugin<SearchEngine> _plugin("eager_greedy", _parse);
+static Plugin<SearchEngineBuilder> _plugin("eager_greedy", _parse);
 }
