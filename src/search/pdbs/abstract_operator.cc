@@ -9,10 +9,12 @@ using namespace std;
 
 namespace pdbs {
 AbstractOperator::AbstractOperator(
+    int concrete_op_id,
     int cost,
     vector<FactPair> &&preconditions,
     int hash_effect)
-    : cost(cost),
+    : concrete_op_id(concrete_op_id),
+      cost(cost),
       preconditions(move(preconditions)),
       hash_effect(hash_effect) {
 }
@@ -40,11 +42,12 @@ void AbstractOperator::dump(const Projection &projection) const {
   meaning prevail, preconditions and effects are all related to
   progression search.
 */
-AbstractOperator build_abstract_operator(
+static AbstractOperator build_abstract_operator(
     const PerfectHashFunction &hash_function,
     const vector<FactPair> &prev_pairs,
     const vector<FactPair> &pre_pairs,
     const vector<FactPair> &eff_pairs,
+    int concrete_op_id,
     int cost) {
     vector<FactPair> preconditions(prev_pairs);
     preconditions.insert(preconditions.end(),
@@ -67,7 +70,7 @@ AbstractOperator build_abstract_operator(
         int effect = (new_val - old_val) * hash_function.get_multiplier(var);
         hash_effect += effect;
     }
-    return AbstractOperator(cost, move(preconditions), hash_effect);
+    return AbstractOperator(concrete_op_id, cost, move(preconditions), hash_effect);
 }
 
 /*
@@ -77,11 +80,12 @@ AbstractOperator build_abstract_operator(
   possible values of the variable (with precondition = -1), one
   abstract operator with a concrete value (!= -1) is computed.
 */
-void multiply_out(
+static void multiply_out(
     const Projection &projection,
     const PerfectHashFunction &hash_function,
-    int pos,
+    int concrete_op_id,
     int cost,
+    int pos,
     vector<FactPair> &prev_pairs,
     vector<FactPair> &pre_pairs,
     vector<FactPair> &eff_pairs,
@@ -92,7 +96,8 @@ void multiply_out(
         if (!eff_pairs.empty()) {
             operators.emplace_back(
                 build_abstract_operator(
-                    hash_function, prev_pairs, pre_pairs, eff_pairs, cost));
+                    hash_function, prev_pairs, pre_pairs, eff_pairs,
+                    concrete_op_id, cost));
         }
     } else {
         // For each possible value for the current variable, build an
@@ -108,8 +113,9 @@ void multiply_out(
             } else {
                 prev_pairs.emplace_back(var_id, i);
             }
-            multiply_out(projection, hash_function, pos + 1, cost, prev_pairs,
-                         pre_pairs, eff_pairs, effects_without_pre, operators);
+            multiply_out(projection, hash_function, concrete_op_id, cost,
+                         pos + 1, prev_pairs, pre_pairs, eff_pairs,
+                         effects_without_pre, operators);
             if (i != eff) {
                 pre_pairs.pop_back();
                 eff_pairs.pop_back();
@@ -172,8 +178,9 @@ void build_abstract_operators(
             }
         }
     }
-    multiply_out(projection, hash_function, 0, cost, prev_pairs,
-                 pre_pairs, eff_pairs, effects_without_pre, operators);
+    multiply_out(projection, hash_function, op.get_id(), cost, 0,
+                 prev_pairs, pre_pairs, eff_pairs, effects_without_pre,
+                 operators);
 }
 
 vector<AbstractOperator> compute_abstract_operators(

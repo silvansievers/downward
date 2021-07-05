@@ -22,6 +22,7 @@ class AbstractOperator {
       abstract state.
     */
 
+    int concrete_op_id;
     int cost;
 
     /*
@@ -39,6 +40,7 @@ class AbstractOperator {
     int hash_effect;
 public:
     AbstractOperator(
+        int concrete_op_id,
         int cost,
         std::vector<FactPair> &&preconditions,
         int hash_effect);
@@ -58,6 +60,10 @@ public:
     */
     int get_hash_effect() const {
         return hash_effect;
+    }
+
+    int get_concrete_op_id() const {
+        return concrete_op_id;
     }
 
     /*

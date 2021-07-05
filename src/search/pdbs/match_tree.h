@@ -26,7 +26,7 @@ class MatchTree {
                           int pre_index,
                           Node **edge_from_parent);
     void get_applicable_operator_ids_recursive(
-        Node *node, size_t state_index, std::vector<int> &operator_ids) const;
+        Node *node, int state_index, std::vector<int> &operator_ids) const;
     void dump_recursive(Node *node) const;
 public:
     // Initialize an empty match tree.
@@ -43,7 +43,7 @@ public:
       pairs).
     */
     void get_applicable_operator_ids(
-        size_t state_index, std::vector<int> &operator_ids) const;
+        int state_index, std::vector<int> &operator_ids) const;
     void dump() const;
 };
 }

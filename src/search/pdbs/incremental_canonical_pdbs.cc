@@ -4,6 +4,8 @@
 #include "pattern_database.h"
 #include "pattern_database_factory.h"
 
+#include <limits>
+
 using namespace std;
 
 namespace pdbs {

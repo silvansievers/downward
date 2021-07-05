@@ -7,6 +7,10 @@
 
 #include <vector>
 
+namespace utils {
+class RandomNumberGenerator;
+}
+
 namespace pdbs {
 class AbstractOperator;
 class MatchTree;
@@ -71,7 +75,8 @@ extern std::vector<int> compute_distances(
     const Projection &projection,
     const PerfectHashFunction &hash_function,
     const std::vector<AbstractOperator> &abstract_operators,
-    const MatchTree &match_tree);
+    const MatchTree &match_tree,
+    const std::unique_ptr<std::vector<int>> &generating_op_ids = nullptr);
 
 /*
     Computes all abstract operators, builds the match tree (successor
@@ -93,6 +98,15 @@ extern std::vector<int> compute_distances(
 extern std::shared_ptr<PatternDatabase> generate_pdb(
     const TaskProxy &task_proxy,
     const Pattern &pattern,
+    bool dump = false,
+    const std::vector<int> &operator_costs = std::vector<int>());
+
+extern std::shared_ptr<PatternDatabase> generate_pdb_and_plan(
+    const TaskProxy &task_proxy,
+    const Pattern &pattern,
+    std::vector<std::vector<OperatorID>> &wildcard_plan,
+    bool compute_wildcard_plan,
+    const std::shared_ptr<utils::RandomNumberGenerator> &rng,
     bool dump = false,
     const std::vector<int> &operator_costs = std::vector<int>());
 }

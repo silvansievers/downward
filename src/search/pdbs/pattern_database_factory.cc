@@ -9,6 +9,7 @@
 #include "../utils/collections.h"
 #include "../utils/logging.h"
 #include "../utils/math.h"
+#include "../utils/rng.h"
 #include "../utils/timer.h"
 
 #include <algorithm>
@@ -96,7 +97,8 @@ vector<int> compute_distances(
     const Projection &projection,
     const PerfectHashFunction &hash_function,
     const vector<AbstractOperator> &abstract_operators,
-    const MatchTree &match_tree) {
+    const MatchTree &match_tree,
+    const unique_ptr<vector<int>> &generating_op_ids) {
     vector<int> distances;
     distances.reserve(hash_function.get_num_states());
     // first implicit entry: priority, second entry: index for an abstract state
@@ -110,6 +112,20 @@ vector<int> compute_distances(
         } else {
             distances.push_back(numeric_limits<int>::max());
         }
+    }
+
+    if (generating_op_ids) {
+        /*
+          If computing a plan during Dijkstra, we store, for each state,
+          an operator leading from that state to another state on a
+          strongly optimal plan of the PDB. We store the first operator
+          encountered during Dijkstra and only update it if the goal distance
+          of the state was updated. Note that in the presence of zero-cost
+          operators, this does not guarantee that we compute a strongly
+          optimal plan because we do not minimize the number of used zero-cost
+          operators.
+         */
+        generating_op_ids->resize(hash_function.get_num_states());
     }
 
     // Dijkstra loop
@@ -131,6 +147,9 @@ vector<int> compute_distances(
             if (alternative_cost < distances[predecessor]) {
                 distances[predecessor] = alternative_cost;
                 pq.push(alternative_cost, predecessor);
+                if (generating_op_ids) {
+                    generating_op_ids->at(predecessor) = op_id;
+                }
             }
         }
     }
@@ -165,6 +184,109 @@ shared_ptr<PatternDatabase> generate_pdb(
         hash_function,
         abstract_operators,
         *match_tree);
+
+    if (dump)
+        utils::g_log << "PDB construction time: " << timer << endl;
+
+    return make_shared<PatternDatabase>(move(hash_function), move(distances));
+}
+
+static void compute_plan(
+    const TaskProxy &task_proxy,
+    const Projection &projection,
+    const PerfectHashFunction &hash_function,
+    const vector<AbstractOperator> &abstract_operators,
+    const MatchTree &match_tree,
+    const vector<int> &generating_op_ids,
+    const vector<int> &distances,
+    bool compute_wildcard_plan,
+    const shared_ptr<utils::RandomNumberGenerator> &rng,
+    vector<vector<OperatorID>> &wildcard_plan) {
+    /*
+      Using the generating operators computed during Dijkstra, we start
+      from the initial state and follow the generating operator to the
+      next state. Then we compute all operators of the same cost inducing
+      the same abstract transition and randomly pick one of them to
+      set for the next state. We iterate until reaching a goal state.
+      Note that this kind of plan extraction does not uniformly at random
+      consider all successor of a state but rather uses the arbitrarily
+      chosen generating operator to settle on one successor state, which
+      is biased by the number of operators leading to the same successor
+      from the given state.
+    */
+    State initial_state = task_proxy.get_initial_state();
+    initial_state.unpack();
+    int current_state =
+        hash_function.rank(initial_state.get_unpacked_values());
+    if (distances[current_state] != numeric_limits<int>::max()) {
+        while (!is_goal_state(projection, hash_function, current_state)) {
+            int op_id = generating_op_ids[current_state];
+            assert(op_id != -1);
+            const AbstractOperator &op = abstract_operators[op_id];
+            int successor_state = current_state - op.get_hash_effect();
+
+            // Compute equivalent ops
+            vector<OperatorID> cheapest_operators;
+            vector<int> applicable_operator_ids;
+            match_tree.get_applicable_operator_ids(successor_state, applicable_operator_ids);
+            for (int applicable_op_id : applicable_operator_ids) {
+                const AbstractOperator &applicable_op = abstract_operators[applicable_op_id];
+                int predecessor = successor_state + applicable_op.get_hash_effect();
+                if (predecessor == current_state && op.get_cost() == applicable_op.get_cost()) {
+                    cheapest_operators.emplace_back(applicable_op.get_concrete_op_id());
+                }
+            }
+            if (compute_wildcard_plan) {
+                rng->shuffle(cheapest_operators);
+                wildcard_plan.push_back(move(cheapest_operators));
+            } else {
+                OperatorID random_op_id = *rng->choose(cheapest_operators);
+                wildcard_plan.emplace_back();
+                wildcard_plan.back().push_back(random_op_id);
+            }
+
+            current_state = successor_state;
+        }
+    }
+}
+
+shared_ptr<PatternDatabase> generate_pdb_and_plan(
+    const TaskProxy &task_proxy,
+    const Pattern &pattern,
+    vector<vector<OperatorID>> &wildcard_plan,
+    bool compute_wildcard_plan,
+    const shared_ptr<utils::RandomNumberGenerator> &rng,
+    bool dump,
+    const vector<int> &operator_costs) {
+    task_properties::verify_no_axioms(task_proxy);
+    task_properties::verify_no_conditional_effects(task_proxy);
+    assert(operator_costs.empty() ||
+           operator_costs.size() == task_proxy.get_operators().size());
+    assert(utils::is_sorted_unique(pattern));
+
+    utils::Timer timer;
+    Projection projection(task_proxy, pattern);
+    PerfectHashFunction hash_function = compute_hash_function(
+        task_proxy, pattern);
+    vector<AbstractOperator> abstract_operators = compute_abstract_operators(
+        projection,
+        hash_function,
+        operator_costs);
+    unique_ptr<MatchTree> match_tree = build_match_tree(
+        projection,
+        hash_function,
+        abstract_operators);
+    unique_ptr<vector<int>> generating_op_ids = utils::make_unique_ptr<vector<int>>();
+    vector<int> distances = compute_distances(
+        projection,
+        hash_function,
+        abstract_operators,
+        *match_tree,
+        generating_op_ids);
+    compute_plan(
+        task_proxy, projection, hash_function, abstract_operators, *match_tree,
+        *generating_op_ids, distances, compute_wildcard_plan, rng,
+        wildcard_plan);
 
     if (dump)
         utils::g_log << "PDB construction time: " << timer << endl;
