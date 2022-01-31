@@ -45,8 +45,10 @@ public:
         assert(!utils::startswith(predefinition_key, "--"));
         assert(!utils::startswith(alias, "--"));
 
-        PredefinitionFunction predefinition_function = predefinition_key.empty() ?
-            nullptr : predefine_plugin<T>;
+        // HACK: We currently disable all notion of predefinitions (everything can be predefined)
+//        PredefinitionFunction predefinition_function = predefinition_key.empty() ?
+//            nullptr : predefine_plugin<T>;
+        PredefinitionFunction predefinition_function = nullptr;
 
         RawRegistry::instance()->insert_plugin_type_data(
             std::type_index(typeid(TPtr)), type_name, documentation,

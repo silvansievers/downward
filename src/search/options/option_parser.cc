@@ -33,11 +33,11 @@ void OptionParser::check_bounds<int>(
     int lower_bound = numeric_limits<int>::lowest();
     int upper_bound = numeric_limits<int>::max();
     if (!bounds.min.empty()) {
-        OptionParser bound_parser(bounds.min, registry, predefinitions, dry_run());
+        OptionParser bound_parser(bounds.min, registry, variable_names, dry_run());
         lower_bound = TokenParser<int>::parse(bound_parser);
     }
     if (!bounds.max.empty()) {
-        OptionParser bound_parser(bounds.max, registry, predefinitions, dry_run());
+        OptionParser bound_parser(bounds.max, registry, variable_names, dry_run());
         upper_bound = TokenParser<int>::parse(bound_parser);
     }
     _check_bounds(*this, key, value, lower_bound, upper_bound);
@@ -49,11 +49,11 @@ void OptionParser::check_bounds<double>(
     double lower_bound = -numeric_limits<double>::infinity();
     double upper_bound = numeric_limits<double>::infinity();
     if (!bounds.min.empty()) {
-        OptionParser bound_parser(bounds.min, registry, predefinitions, dry_run());
+        OptionParser bound_parser(bounds.min, registry, variable_names, dry_run());
         lower_bound = TokenParser<double>::parse(bound_parser);
     }
     if (!bounds.max.empty()) {
-        OptionParser bound_parser(bounds.max, registry, predefinitions, dry_run());
+        OptionParser bound_parser(bounds.max, registry, variable_names, dry_run());
         upper_bound = TokenParser<double>::parse(bound_parser);
     }
     _check_bounds(*this, key, value, lower_bound, upper_bound);
@@ -131,21 +131,21 @@ static ParseTree generate_parse_tree(const string &config) {
 
 
 OptionParser::OptionParser(const ParseTree &parse_tree, Registry &registry,
-                           const Predefinitions &predefinitions,
+                           const unordered_set<string> &variable_names,
                            bool dry_run, bool help_mode)
     : opts(help_mode),
       parse_tree(parse_tree),
       registry(registry),
-      predefinitions(predefinitions),
+      variable_names(variable_names),
       dry_run_(dry_run),
       help_mode_(help_mode),
       next_unparsed_argument(first_child_of_root(this->parse_tree)) {
 }
 
 OptionParser::OptionParser(const string &config, Registry &registry,
-                           const Predefinitions &predefinitions,
+                           const unordered_set<string> &variable_names,
                            bool dry_run, bool help_mode)
-    : OptionParser(generate_parse_tree(config), registry, predefinitions,
+    : OptionParser(generate_parse_tree(config), registry, variable_names,
                    dry_run, help_mode) {
 }
 
@@ -216,8 +216,12 @@ Registry &OptionParser::get_registry() {
     return registry;
 }
 
-const Predefinitions &OptionParser::get_predefinitions() const {
-    return predefinitions;
+bool OptionParser::contains_variable(string name) const {
+    return (variable_names.count(name) > 0);
+}
+
+const unordered_set<string> &OptionParser::get_variable_names() const {
+    return variable_names;
 }
 
 const string &OptionParser::get_root_value() const {

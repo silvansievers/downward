@@ -41,7 +41,8 @@ successor_generator::SuccessorGenerator &get_successor_generator(const TaskProxy
     return successor_generator;
 }
 
-SearchEngine::SearchEngine(const Options &opts)
+SearchEngine::SearchEngine(
+    int bound, double max_time, OperatorCost cost_type, utils::Verbosity verbosity)
     : status(IN_PROGRESS),
       solution_found(false),
       task(tasks::g_root_task),
@@ -49,17 +50,17 @@ SearchEngine::SearchEngine(const Options &opts)
       state_registry(task_proxy),
       successor_generator(get_successor_generator(task_proxy)),
       search_space(state_registry),
-      search_progress(opts.get<utils::Verbosity>("verbosity")),
-      statistics(opts.get<utils::Verbosity>("verbosity")),
-      cost_type(opts.get<OperatorCost>("cost_type")),
+      search_progress(verbosity),
+      statistics(verbosity),
+      bound(bound),
+      cost_type(cost_type),
       is_unit_cost(task_properties::is_unit_cost(task_proxy)),
-      max_time(opts.get<double>("max_time")),
-      verbosity(opts.get<utils::Verbosity>("verbosity")) {
-    if (opts.get<int>("bound") < 0) {
-        cerr << "error: negative cost bound " << opts.get<int>("bound") << endl;
+      max_time(max_time),
+      verbosity(verbosity) {
+    if (bound < 0) {
+        cerr << "error: negative cost bound " << bound << endl;
         utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
-    bound = opts.get<int>("bound");
     task_properties::print_variable_statistics(task_proxy);
 }
 
@@ -120,58 +121,6 @@ int SearchEngine::get_adjusted_cost(const OperatorProxy &op) const {
     return get_adjusted_action_cost(op, cost_type, is_unit_cost);
 }
 
-/* TODO: merge this into add_options_to_parser when all search
-         engines support pruning.
-
-   Method doesn't belong here because it's only useful for certain derived classes.
-   TODO: Figure out where it belongs and move it there. */
-void SearchEngine::add_pruning_option(OptionParser &parser) {
-    parser.add_option<shared_ptr<PruningMethod>>(
-        "pruning",
-        "Pruning methods can prune or reorder the set of applicable operators in "
-        "each state and thereby influence the number and order of successor states "
-        "that are considered.",
-        "null()");
-}
-
-void SearchEngine::add_options_to_parser(OptionParser &parser) {
-    ::add_cost_type_option_to_parser(parser);
-    parser.add_option<int>(
-        "bound",
-        "exclusive depth bound on g-values. Cutoffs are always performed according to "
-        "the real cost, regardless of the cost_type parameter", "infinity");
-    parser.add_option<double>(
-        "max_time",
-        "maximum time in seconds the search is allowed to run for. The "
-        "timeout is only checked after each complete search step "
-        "(usually a node expansion), so the actual runtime can be arbitrarily "
-        "longer. Therefore, this parameter should not be used for time-limiting "
-        "experiments. Timed-out searches are treated as failed searches, "
-        "just like incomplete search algorithms that exhaust their search space.",
-        "infinity");
-    utils::add_verbosity_option_to_parser(parser);
-}
-
-/* Method doesn't belong here because it's only useful for certain derived classes.
-   TODO: Figure out where it belongs and move it there. */
-void SearchEngine::add_succ_order_options(OptionParser &parser) {
-    vector<string> options;
-    parser.add_option<bool>(
-        "randomize_successors",
-        "randomize the order in which successors are generated",
-        "false");
-    parser.add_option<bool>(
-        "preferred_successors_first",
-        "consider preferred operators first",
-        "false");
-    parser.document_note(
-        "Successor ordering",
-        "When using randomize_successors=true and "
-        "preferred_successors_first=true, randomization happens before "
-        "preferred operators are moved to the front.");
-    utils::add_rng_options(parser);
-}
-
 void print_initial_evaluator_values(const EvaluationContext &eval_context) {
     eval_context.get_cache().for_each_evaluator_result(
         [] (const Evaluator *eval, const EvaluationResult &result) {
@@ -181,11 +130,6 @@ void print_initial_evaluator_values(const EvaluationContext &eval_context) {
         }
         );
 }
-
-static PluginTypePlugin<SearchEngine> _type_plugin(
-    "SearchEngine",
-    // TODO: Replace empty string by synopsis for the wiki page.
-    "");
 
 void collect_preferred_operators(
     EvaluationContext &eval_context,

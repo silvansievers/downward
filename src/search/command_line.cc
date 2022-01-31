@@ -2,7 +2,7 @@
 
 #include "option_parser.h"
 #include "plan_manager.h"
-#include "search_engine.h"
+#include "search_engine_builder.h"
 
 #include "options/doc_printer.h"
 #include "options/predefinitions.h"
@@ -41,14 +41,17 @@ static int parse_int_arg(const string &name, const string &value) {
     }
 }
 
-static shared_ptr<SearchEngine> parse_cmd_line_aux(
+static shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line_aux(
     const vector<string> &args, options::Registry &registry, bool dry_run) {
     string plan_filename = "sas_plan";
     int num_previously_generated_plans = 0;
-    bool is_part_of_anytime_portfolio = false;
-    options::Predefinitions predefinitions;
+//    bool is_part_of_anytime_portfolio = false;
+//    options::Predefinitions predefinitions;
+    unordered_map<string,string> predefinitions;
+    unordered_set<string> variable_names;
+    string search_string;
+    shared_ptr<PluginBuilder<SearchEngine>> engine;
 
-    shared_ptr<SearchEngine> engine;
     /*
       Note that we don’t sanitize all arguments beforehand because filenames should remain as-is
       (no conversion to lower-case, no conversion of newlines to spaces).
@@ -61,9 +64,10 @@ static shared_ptr<SearchEngine> parse_cmd_line_aux(
             if (is_last)
                 throw ArgError("missing argument after --search");
             ++i;
-            OptionParser parser(sanitize_arg_string(args[i]), registry,
-                                predefinitions, dry_run);
-            engine = parser.start_parsing<shared_ptr<SearchEngine>>();
+            search_string = sanitize_arg_string(args[i]);
+//            OptionParser parser(sanitize_arg_string(args[i]), registry,
+//                                predefinitions, dry_run);
+//            engine = parser.start_parsing<shared_ptr<PluginBuilder<SearchEngine>>>();
         } else if (arg == "--help" && dry_run) {
             cout << "Help:" << endl;
             bool txt2tags = false;
@@ -101,7 +105,7 @@ static shared_ptr<SearchEngine> parse_cmd_line_aux(
             if (is_last)
                 throw ArgError("missing argument after --internal-previous-portfolio-plans");
             ++i;
-            is_part_of_anytime_portfolio = true;
+//            is_part_of_anytime_portfolio = true;
             num_previously_generated_plans = parse_int_arg(arg, args[i]);
             if (num_previously_generated_plans < 0)
                 throw ArgError("argument for --internal-previous-portfolio-plans must be positive");
@@ -110,25 +114,51 @@ static shared_ptr<SearchEngine> parse_cmd_line_aux(
             if (is_last)
                 throw ArgError("missing argument after " + arg);
             ++i;
-            registry.handle_predefinition(arg.substr(2),
-                                          sanitize_arg_string(args[i]),
-                                          predefinitions, dry_run);
+            std::pair<std::string, std::string> predefinition;
+            try {
+                predefinition = utils::split(args[i], "=");
+            } catch (utils::StringOperationError &) {
+                throw OptionParserError("Predefinition error: Predefinition has to be "
+                                        "of the form [name]=[definition].");
+            }
+
+            std::string key = predefinition.first;
+            std::string value = predefinition.second;
+            utils::strip(key);
+            utils::strip(value);
+            variable_names.insert(key);
+            predefinitions.insert(make_pair(key,value));
         } else {
             throw ArgError("unknown option " + arg);
         }
     }
 
-    if (engine) {
-        PlanManager &plan_manager = engine->get_plan_manager();
-        plan_manager.set_plan_filename(plan_filename);
-        plan_manager.set_num_previously_generated_plans(num_previously_generated_plans);
-        plan_manager.set_is_part_of_anytime_portfolio(is_part_of_anytime_portfolio);
+    for (auto predefinition : predefinitions) {
+        search_string = "let(" + predefinition.first +
+            ", " + predefinition.second + ", " + search_string + ")";
     }
+
+
+    /*
+      HACK: we currently do not test whether predefinition types match,
+      that is we could call "--landmarks h=lmcut() --search "astar(h)"
+      and it would work.
+    */
+    OptionParser parser(search_string, registry,
+                        variable_names, dry_run);
+    engine = parser.start_parsing<shared_ptr<PluginBuilder<SearchEngine>>>();
+
+//    if (engine) {
+//        PlanManager &plan_manager = engine->get_plan_manager();
+//        plan_manager.set_plan_filename(plan_filename);
+//        plan_manager.set_num_previously_generated_plans(num_previously_generated_plans);
+//        plan_manager.set_is_part_of_anytime_portfolio(is_part_of_anytime_portfolio);
+//    }
     return engine;
 }
 
 
-shared_ptr<SearchEngine> parse_cmd_line(
+shared_ptr<PluginBuilder<SearchEngine>> parse_cmd_line(
     int argc, const char **argv, options::Registry &registry, bool dry_run, bool is_unit_cost) {
     vector<string> args;
     bool active = true;
@@ -153,7 +183,7 @@ shared_ptr<SearchEngine> parse_cmd_line(
 string usage(const string &progname) {
     return "usage: \n" +
            progname + " [OPTIONS] --search SEARCH < OUTPUT\n\n"
-           "* SEARCH (SearchEngine): configuration of the search algorithm\n"
+           "* SEARCH (SearchEngineBuilder): configuration of the search algorithm\n"
            "* OUTPUT (filename): translator output\n\n"
            "Options:\n"
            "--help [NAME]\n"

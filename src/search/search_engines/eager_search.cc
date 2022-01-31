@@ -4,7 +4,7 @@
 #include "../evaluator.h"
 #include "../open_list_factory.h"
 #include "../option_parser.h"
-#include "../pruning_method.h"
+//#include "../pruning_method.h"
 
 #include "../algorithms/ordered_set.h"
 #include "../task_utils/successor_generator.h"
@@ -20,15 +20,19 @@
 using namespace std;
 
 namespace eager_search {
-EagerSearch::EagerSearch(const Options &opts)
-    : SearchEngine(opts),
-      reopen_closed_nodes(opts.get<bool>("reopen_closed")),
-      open_list(opts.get<shared_ptr<OpenListFactory>>("open")->
-                create_state_open_list()),
-      f_evaluator(opts.get<shared_ptr<Evaluator>>("f_eval", nullptr)),
-      preferred_operator_evaluators(opts.get_list<shared_ptr<Evaluator>>("preferred")),
-      lazy_evaluator(opts.get<shared_ptr<Evaluator>>("lazy_evaluator", nullptr)),
-      pruning_method(opts.get<shared_ptr<PruningMethod>>("pruning")) {
+EagerSearch::EagerSearch(
+    unique_ptr<StateOpenList> open_list,
+    const shared_ptr<Evaluator> &f_evaluator,
+    const vector<shared_ptr<Evaluator>> &preferred_operator_evaluators,
+    const shared_ptr<Evaluator> &lazy_evaluator,
+    int bound, double max_time, OperatorCost cost_type, bool reopen_closed,
+    utils::Verbosity verbosity)
+    : SearchEngine(bound, max_time, cost_type, verbosity),
+      reopen_closed_nodes(reopen_closed),
+      open_list(move(open_list)),
+      f_evaluator(f_evaluator),
+      preferred_operator_evaluators(preferred_operator_evaluators),
+      lazy_evaluator(lazy_evaluator) {
     if (lazy_evaluator && !lazy_evaluator->does_cache_estimates()) {
         cerr << "lazy_evaluator must cache its estimates" << endl;
         utils::exit_with(utils::ExitCode::SEARCH_INPUT_ERROR);
@@ -99,13 +103,13 @@ void EagerSearch::initialize() {
 
     print_initial_evaluator_values(eval_context);
 
-    pruning_method->initialize(task);
+    //pruning_method->initialize(task);
 }
 
 void EagerSearch::print_statistics() const {
     statistics.print_detailed_statistics();
     search_space.print_statistics();
-    pruning_method->print_statistics();
+    //pruning_method->print_statistics();
 }
 
 SearchStatus EagerSearch::step() {
@@ -179,7 +183,7 @@ SearchStatus EagerSearch::step() {
       TODO: When preferred operators are in use, a preferred operator will be
       considered by the preferred operator queues even when it is pruned.
     */
-    pruning_method->prune_operators(s, applicable_ops);
+    // pruning_method->prune_operators(s, applicable_ops);
 
     // This evaluates the expanded state (again) to get preferred ops
     EvaluationContext eval_context(s, node->get_g(), false, &statistics, true);
@@ -306,10 +310,5 @@ void EagerSearch::update_f_value_statistics(EvaluationContext &eval_context) {
         int f_value = eval_context.get_evaluator_value(f_evaluator.get());
         statistics.report_f_value_progress(f_value);
     }
-}
-
-void add_options_to_parser(OptionParser &parser) {
-    SearchEngine::add_pruning_option(parser);
-    SearchEngine::add_options_to_parser(parser);
 }
 }

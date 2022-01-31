@@ -3,16 +3,23 @@
 
 #include "../open_list_factory.h"
 #include "../option_parser_util.h"
+#include "../plugin_builder.h"
+
+class Evaluator;
 
 namespace tiebreaking_open_list {
 class TieBreakingOpenListFactory : public OpenListFactory {
     Options options;
+    const std::vector<std::shared_ptr<PluginBuilder<Evaluator>>> evaluator_builders;
+    const bool allow_unsafe_pruning;
 public:
-    explicit TieBreakingOpenListFactory(const Options &options);
+    explicit TieBreakingOpenListFactory(const Options &opts);
     virtual ~TieBreakingOpenListFactory() override = default;
 
-    virtual std::unique_ptr<StateOpenList> create_state_open_list() override;
-    virtual std::unique_ptr<EdgeOpenList> create_edge_open_list() override;
+    virtual std::unique_ptr<StateOpenList> create_state_open_list(
+        PluginVariableAssignment &variable_context,
+        const std::shared_ptr<AbstractTask> &task) override;
+    //virtual std::unique_ptr<EdgeOpenList> create_edge_open_list() override;
 };
 }
 

@@ -1,6 +1,7 @@
 #include "command_line.h"
 #include "option_parser.h"
 #include "search_engine.h"
+#include "search_engine_builder.h"
 
 #include "options/registries.h"
 #include "tasks/root_task.h"
@@ -31,14 +32,14 @@ int main(int argc, const char **argv) {
         unit_cost = task_properties::is_unit_cost(task_proxy);
     }
 
-    shared_ptr<SearchEngine> engine;
+    shared_ptr<PluginBuilder<SearchEngine>> engine_builder;
 
     // The command line is parsed twice: once in dry-run mode, to
     // check for simple input errors, and then in normal mode.
     try {
         options::Registry registry(*options::RawRegistry::instance());
         parse_cmd_line(argc, argv, registry, true, unit_cost);
-        engine = parse_cmd_line(argc, argv, registry, false, unit_cost);
+        engine_builder = parse_cmd_line(argc, argv, registry, false, unit_cost);
     } catch (const ArgError &error) {
         error.print();
         usage(argv[0]);
@@ -51,6 +52,12 @@ int main(int argc, const char **argv) {
         error.print();
         utils::exit_with(ExitCode::SEARCH_INPUT_ERROR);
     }
+
+    PluginVariableAssignment variable_context;
+    shared_ptr<SearchEngine> engine = engine_builder->build(
+            variable_context, tasks::g_root_task);
+    // TODO: is reset the right call? I want to delete the engine builder
+    engine_builder.reset();
 
     utils::Timer search_timer;
     engine->search();

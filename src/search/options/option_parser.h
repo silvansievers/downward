@@ -6,6 +6,7 @@
 #include "predefinitions.h"
 #include "registries.h"
 
+#include "../plugin_variable_builder.h"
 #include "../utils/math.h"
 #include "../utils/strings.h"
 
@@ -15,6 +16,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace options {
 /*
@@ -31,7 +34,14 @@ class OptionParser {
       be improved later.
     */
     Registry &registry;
-    const Predefinitions &predefinitions;
+    /*
+      HACK: ideally we want to collect variable names as we parse the let expressions,
+      but the current implementation of the OptionParser does not allow this. We thus
+      currently cannot parse let expressions from the command line, but only turn
+      predefinitions into let expressions in parse_cmd_line_aux, which keeps track of
+      the variable names and passes them onto the option parser.
+    */
+    std::unordered_set<std::string> variable_names;
     const bool dry_run_;
     const bool help_mode_;
 
@@ -47,10 +57,10 @@ class OptionParser {
 
 public:
     OptionParser(const ParseTree &parse_tree, Registry &registry,
-                 const Predefinitions &predefinitions,
+                 const std::unordered_set<std::string> &variable_names,
                  bool dry_run, bool help_mode = false);
     OptionParser(const std::string &config, Registry &registry,
-                 const Predefinitions &predefinitions,
+                 const std::unordered_set<std::string> &variable_names,
                  bool dry_run, bool help_mode = false);
     ~OptionParser() = default;
     OptionParser(const OptionParser &other) = delete;
@@ -104,7 +114,8 @@ public:
 
     const ParseTree *get_parse_tree();
     Registry &get_registry();
-    const Predefinitions &get_predefinitions() const;
+    const std::unordered_set<std::string> &get_variable_names() const;
+    bool contains_variable(std::string name)  const;
     const std::string &get_root_value() const;
 
     bool dry_run() const;
@@ -134,6 +145,12 @@ template<typename T>
 class TokenParser<std::shared_ptr<T>> {
 public:
     static inline std::shared_ptr<T> parse(OptionParser &parser);
+};
+
+template<typename T>
+class TokenParser<std::shared_ptr<PluginBuilder<T>>> {
+public:
+    static inline std::shared_ptr<PluginBuilder<T>> parse(OptionParser &parser);
 };
 
 template<typename T>
@@ -234,22 +251,34 @@ static std::shared_ptr<T> lookup_in_registry(OptionParser &parser) {
     return nullptr;
 }
 
-template<typename T>
-static std::shared_ptr<T> lookup_in_predefinitions(OptionParser &parser, bool &found) {
-    using TPtr = std::shared_ptr<T>;
-    const std::string &value = parser.get_root_value();
-    found = parser.get_predefinitions().contains(value);
-    return parser.get_predefinitions().get<TPtr>(value, nullptr);
-}
+//template<typename T>
+//static std::shared_ptr<T> lookup_in_predefinitions(OptionParser &parser, bool &found) {
+//    using TPtr = std::shared_ptr<T>;
+//    const std::string &value = parser.get_root_value();
+//    found = parser.get_predefinitions().contains(value);
+//    return parser.get_predefinitions().get<TPtr>(value, nullptr);
+//}
+
+//template<typename T>
+//inline std::shared_ptr<T> TokenParser<std::shared_ptr<T>>::parse(OptionParser &parser) {
+//    bool predefined;
+//    std::shared_ptr<T> result = lookup_in_predefinitions<T>(parser, predefined);
+//    if (predefined)
+//        return result;
+//    return lookup_in_registry<T>(parser);
+//}
 
 template<typename T>
-inline std::shared_ptr<T> TokenParser<std::shared_ptr<T>>::parse(OptionParser &parser) {
-    bool predefined;
-    std::shared_ptr<T> result = lookup_in_predefinitions<T>(parser, predefined);
-    if (predefined)
-        return result;
-    return lookup_in_registry<T>(parser);
+inline std::shared_ptr<PluginBuilder<T>> TokenParser<std::shared_ptr<PluginBuilder<T>>>::parse(OptionParser &parser) {
+    const std::string &value = parser.get_root_value();
+    // HACK: we should not abuse the predefinitions to check for variables.
+    if (parser.contains_variable(value)) {
+        return std::make_shared<PluginVariableBuilder<T>>(value);
+    } else {
+        return lookup_in_registry<PluginBuilder<T>>(parser);
+    }
 }
+
 
 // Needed for iterated search.
 template<>
@@ -267,7 +296,7 @@ inline std::vector<T> TokenParser<std::vector<T>>::parse(OptionParser &parser) {
          tree_it != end_of_roots_children(*parser.get_parse_tree());
          ++tree_it) {
         OptionParser subparser(subtree(*parser.get_parse_tree(), tree_it),
-                               parser.get_registry(), parser.get_predefinitions(),
+                               parser.get_registry(), parser.get_variable_names(),
                                parser.dry_run());
         results.push_back(TokenParser<T>::parse(subparser));
     }
@@ -340,9 +369,9 @@ void OptionParser::add_option(
     std::unique_ptr<OptionParser> subparser =
         use_default ?
         utils::make_unique_ptr<OptionParser>(default_value, registry,
-                                             predefinitions, dry_run()) :
+                                             variable_names, dry_run()) :
         utils::make_unique_ptr<OptionParser>(subtree(parse_tree, arg), registry,
-                                             predefinitions, dry_run());
+                                             variable_names, dry_run());
     T result = TokenParser<T>::parse(*subparser);
     check_bounds<T>(key, result, bounds);
     opts.set<T>(key, result);
@@ -447,7 +476,8 @@ void predefine_plugin(const std::string &arg, Registry &registry,
     utils::strip(value);
 
     OptionParser parser(value, registry, predefinitions, dry_run);
-    predefinitions.predefine(key, parser.start_parsing<std::shared_ptr<T>>());
+    // HACK
+    predefinitions.predefine(key, nullptr);
 }
 }
 

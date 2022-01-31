@@ -6,8 +6,7 @@
 namespace g_evaluator {
 class GEvaluator : public Evaluator {
 public:
-    GEvaluator() = default;
-    virtual ~GEvaluator() override = default;
+    explicit GEvaluator(const std::shared_ptr<AbstractTask> &task);
 
     virtual EvaluationResult compute_result(
         EvaluationContext &eval_context) override;

@@ -15,6 +15,3 @@ void PruningMethod::initialize(const shared_ptr<AbstractTask> &task_) {
     task = task_;
 }
 
-static PluginTypePlugin<PruningMethod> _type_plugin(
-    "PruningMethod",
-    "Prune or reorder applicable operators.");

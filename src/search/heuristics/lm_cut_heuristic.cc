@@ -15,8 +15,11 @@
 using namespace std;
 
 namespace lm_cut_heuristic {
-LandmarkCutHeuristic::LandmarkCutHeuristic(const Options &opts)
-    : Heuristic(opts),
+LandmarkCutHeuristic::LandmarkCutHeuristic(
+        const std::shared_ptr<AbstractTask> &task,
+        bool cache_estimates,
+        const std::string &name)
+    : Heuristic(task, cache_estimates, name),
       landmark_generator(utils::make_unique_ptr<LandmarkCutLandmarks>(task_proxy)) {
     utils::g_log << "Initializing landmark cut heuristic..." << endl;
 }
@@ -36,24 +39,4 @@ int LandmarkCutHeuristic::compute_heuristic(const State &ancestor_state) {
         return DEAD_END;
     return total_cost;
 }
-
-static shared_ptr<Heuristic> _parse(OptionParser &parser) {
-    parser.document_synopsis("Landmark-cut heuristic", "");
-    parser.document_language_support("action costs", "supported");
-    parser.document_language_support("conditional effects", "not supported");
-    parser.document_language_support("axioms", "not supported");
-    parser.document_property("admissible", "yes");
-    parser.document_property("consistent", "no");
-    parser.document_property("safe", "yes");
-    parser.document_property("preferred operators", "no");
-
-    Heuristic::add_options_to_parser(parser);
-    Options opts = parser.parse();
-    if (parser.dry_run())
-        return nullptr;
-    else
-        return make_shared<LandmarkCutHeuristic>(opts);
-}
-
-static Plugin<Evaluator> _plugin("lmcut", _parse);
 }

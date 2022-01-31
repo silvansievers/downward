@@ -20,6 +20,7 @@ protected:
     virtual int combine_values(const std::vector<int> &values) = 0;
 public:
     explicit CombiningEvaluator(
+        const std::shared_ptr<AbstractTask> &task,
         const std::vector<std::shared_ptr<Evaluator>> &subevaluators_);
     virtual ~CombiningEvaluator() override;
 

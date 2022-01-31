@@ -1,4 +1,4 @@
-#include "eager_search.h"
+#include "eager_search_builder.h"
 #include "search_common.h"
 
 #include "../option_parser.h"
@@ -7,7 +7,7 @@
 using namespace std;
 
 namespace plugin_eager_wastar {
-static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
+static shared_ptr<SearchEngineBuilder> _parse(OptionParser &parser) {
     parser.document_synopsis(
         "Eager weighted A* search",
         "");
@@ -48,9 +48,9 @@ static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
         return nullptr;
     } else {
         opts.set("open", search_common::create_wastar_open_list_factory(opts));
-        return make_shared<eager_search::EagerSearch>(opts);
+        return make_shared<eager_search::EagerSearchBuilder>(opts);
     }
 }
 
-static Plugin<SearchEngine> _plugin("eager_wastar", _parse);
+static Plugin<SearchEngineBuilder> _plugin("eager_wastar", _parse);
 }

@@ -54,8 +54,10 @@ fast_downward_plugin(
         evaluation_context
         evaluation_result
         evaluator
+        evaluator_builder
         evaluator_cache
         heuristic
+        heuristic_builder
         open_list
         open_list_factory
         operator_cost
@@ -68,8 +70,14 @@ fast_downward_plugin(
         per_task_information
         plan_manager
         plugin
+        plugin_builder
+        plugin_let_builder
+        plugin_variable_builder
+        plugin_variable_assignment
         pruning_method
+        pruning_method_builder
         search_engine
+        search_engine_builder
         search_node_info
         search_progress
         search_space
@@ -264,10 +272,20 @@ fast_downward_plugin(
 )
 
 fast_downward_plugin(
+    NAME COST_ADAPTED_EVALUATOR
+    HELP "Cost-adapted evaluator"
+    SOURCES
+        evaluators/cost_adapted_evaluator_builder
+    DEPENDS EVALUATORS_PLUGIN_GROUP
+    CORE_PLUGIN
+)
+
+fast_downward_plugin(
     NAME G_EVALUATOR
     HELP "The g-evaluator"
     SOURCES
         evaluators/g_evaluator
+        evaluators/g_evaluator_builder
     DEPENDS EVALUATORS_PLUGIN_GROUP
 )
 
@@ -276,6 +294,7 @@ fast_downward_plugin(
     HELP "The combining evaluator"
     SOURCES
         evaluators/combining_evaluator
+        evaluators/combining_evaluator_builder
     DEPENDENCY_ONLY
 )
 
@@ -300,6 +319,7 @@ fast_downward_plugin(
     HELP "The weighted evaluator"
     SOURCES
         evaluators/weighted_evaluator
+        evaluators/weighted_evaluator_builder
     DEPENDS EVALUATORS_PLUGIN_GROUP
 )
 
@@ -308,6 +328,7 @@ fast_downward_plugin(
     HELP "The sum evaluator"
     SOURCES
         evaluators/sum_evaluator
+        evaluators/sum_evaluator_builder
     DEPENDS COMBINING_EVALUATOR EVALUATORS_PLUGIN_GROUP
 )
 
@@ -316,6 +337,7 @@ fast_downward_plugin(
     HELP "Pruning method that does nothing"
     SOURCES
         pruning/null_pruning_method
+        pruning/null_pruning_method_builder
     DEPENDENCY_ONLY
 )
 
@@ -357,7 +379,7 @@ fast_downward_plugin(
     HELP "Basic classes used for all search engines"
     SOURCES
         search_engines/search_common
-    DEPENDS ALTERNATION_OPEN_LIST G_EVALUATOR BEST_FIRST_OPEN_LIST SUM_EVALUATOR TIEBREAKING_OPEN_LIST WEIGHTED_EVALUATOR
+    DEPENDS G_EVALUATOR BEST_FIRST_OPEN_LIST SUM_EVALUATOR TIEBREAKING_OPEN_LIST #ALTERNATION_OPEN_LIST WEIGHTED_EVALUATOR
     DEPENDENCY_ONLY
 )
 
@@ -366,6 +388,7 @@ fast_downward_plugin(
     HELP "Eager search algorithm"
     SOURCES
         search_engines/eager_search
+        search_engines/eager_search_builder
     DEPENDS NULL_PRUNING_METHOD ORDERED_SET SUCCESSOR_GENERATOR
     DEPENDENCY_ONLY
 )
@@ -481,6 +504,7 @@ fast_downward_plugin(
     HELP "The 'blind search' heuristic"
     SOURCES
         heuristics/blind_search_heuristic
+        heuristics/blind_search_heuristic_builder
     DEPENDS TASK_PROPERTIES
 )
 
@@ -536,6 +560,7 @@ fast_downward_plugin(
     HELP "The LM-cut heuristic"
     SOURCES
         heuristics/lm_cut_heuristic
+        heuristics/lm_cut_heuristic_builder
         heuristics/lm_cut_landmarks
     DEPENDS PRIORITY_QUEUES TASK_PROPERTIES
 )
