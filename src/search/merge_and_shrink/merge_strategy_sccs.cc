@@ -26,15 +26,12 @@ MergeStrategySCCs::~MergeStrategySCCs() {
 }
 
 static void compute_merge_candidates(
-    const FactoredTransitionSystem &fts,
     const vector<int> &indices,
     vector<pair<int, int>> &merge_candidates) {
     for (size_t i = 0; i < indices.size(); ++i) {
         int ts_index1 = indices[i];
-        assert(fts.is_active(ts_index1));
         for (size_t j = i + 1; j < indices.size(); ++j) {
             int ts_index2 = indices[j];
-            assert(fts.is_active(ts_index2));
             merge_candidates.emplace_back(ts_index1, ts_index2);
         }
     }
@@ -56,12 +53,12 @@ pair<int, int> MergeStrategySCCs::get_next() {
                 for (int factor : cluster) {
                     factor_to_cluster[factor] = cluster_index;
                 }
-                compute_merge_candidates(fts, cluster, merge_candidates);
+                compute_merge_candidates(cluster, merge_candidates);
             }
         } else {
             // Deal with first cluster.
             vector<int> &cluster = unfinished_clusters.front();
-            compute_merge_candidates(fts, cluster, merge_candidates);
+            compute_merge_candidates(cluster, merge_candidates);
         }
 
         // Select the next merge from the allowed merge candidates.
