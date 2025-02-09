@@ -158,24 +158,29 @@ public:
                 "2016") +
             "In a nutshell, it computes the maximal SCCs of the causal graph, "
             "obtaining a partitioning of the task's variables. Every such "
-            "partition is then merged individually, using the specified fallback "
-            "merge strategy, considering the SCCs in a configurable order. "
-            "Afterwards, all resulting composite abstractions are merged to form "
-            "the final abstraction, again using the specified fallback merge "
-            "strategy and the configurable order of the SCCs.");
+            "partition is then merged individually, using the score-based merge "
+            "strategy specified via the merge_selector option. If "
+            "allow_working_on_all_clusters=true, then all pairs of factors in "
+            "each partition form the set of candidates scored by the score-based "
+            "merge strategy. Otherwise, SCC partitions are worked on 'one after "
+            "the other' in the order specified via 'order_of_sccs', and hence "
+            "only the pairs of factors of the 'current partition' form the set "
+            "of candidates. In both cases, once all partitions have been merged, "
+            "the resulting product factors are merged according to the score-"
+            "based merge strategy.");
 
         add_option<OrderOfSCCs>(
             "order_of_sccs",
-            "how the SCCs should be ordered",
+            "how the SCCs should be ordered (only relevant if allow_working_on_all_clusters=false)",
             "topological");
         add_option<shared_ptr<MergeSelector>>(
             "merge_selector",
-            "the fallback merge strategy to use");
+            "the score-based merge strategy used to merge factors within and across SCCs");
         add_option<bool>(
             "allow_working_on_all_clusters",
-            "if true, compute merge candidates for all unfinished clusters. If "
+            "if true, consider as merge candidates the pairs of factors of all SCCs. If "
             "false, fully finish dealing with one cluster at a time.",
-            "false");
+            "true");
         add_merge_strategy_options_to_feature(*this);
     }
 
