@@ -149,6 +149,10 @@ public:
         return *transition_systems[index];
     }
 
+    const MergeAndShrinkRepresentation &get_mas_representation(int index) const {
+        return *mas_representations[index];
+    }
+
     const Distances &get_distances(int index) const {
         return *distances[index];
     }
