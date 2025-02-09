@@ -1,17 +1,8 @@
-#! /usr/bin/env python
-
 import math
+import re
 
 from lab.parser import Parser
 
-parser = Parser()
-# parser.add_pattern('ms_construction_time', 'Done initializing merge-and-shrink heuristic \[(.+)s\]', required=False, type=float)
-parser.add_pattern('ms_construction_time', 'Merge-and-shrink algorithm runtime: (.+)s', required=False, type=float)
-parser.add_pattern('ms_atomic_construction_time', 'M&S algorithm timer: (.+)s \(after computation of atomic factors\)', required=False, type=float)
-# parser.add_pattern('ms_atomic_construction_time', 't=(.+)s \(after computation of atomic transition systems\)', required=False, type=float)
-# parser.add_pattern('ms_memory_delta', 'Final peak memory increase of merge-and-shrink computation: (\d+) KB', required=False, type=int)
-parser.add_pattern('ms_memory_delta', 'Final peak memory increase of merge-and-shrink algorithm: (\d+) KB', required=False, type=int)
-parser.add_pattern('ms_main_loop_max_time', 'Main loop max time in seconds: (\d+)', required=False, type=int)
 
 def check_ms_constructed(content, props):
     ms_construction_time = props.get('ms_construction_time')
@@ -20,7 +11,6 @@ def check_ms_constructed(content, props):
         abstraction_constructed = True
     props['ms_abstraction_constructed'] = abstraction_constructed
 
-parser.add_function(check_ms_constructed)
 
 def check_atomic_fts_constructed(content, props):
     ms_atomic_construction_time = props.get('ms_atomic_construction_time')
@@ -29,7 +19,6 @@ def check_atomic_fts_constructed(content, props):
         ms_atomic_fts_constructed = True
     props['ms_atomic_fts_constructed'] = ms_atomic_fts_constructed
 
-parser.add_function(check_atomic_fts_constructed)
 
 def check_planner_exit_reason(content, props):
     ms_abstraction_constructed = props.get('ms_abstraction_constructed')
@@ -59,7 +48,6 @@ def check_planner_exit_reason(content, props):
     props['search_out_of_time'] = search_out_of_time
     props['search_out_of_memory'] = search_out_of_memory
 
-parser.add_function(check_planner_exit_reason)
 
 def check_reached_time_limit(content, props):
     props['ms_reached_time_limit'] = False
@@ -67,15 +55,6 @@ def check_reached_time_limit(content, props):
         if 'Ran out of time, stopping computation.' in line:
             props['ms_reached_time_limit'] = True
 
-parser.add_function(check_reached_time_limit)
-
-def check_no_more_suitable_merge_candidate(content, props):
-    props['ms_no_more_suitable_merge_candidate'] = False
-    for line in content.splitlines():
-        if 'No suitable merge candidate found, stopping computation.' in line:
-            props['ms_no_more_suitable_merge_candidate'] = True
-
-parser.add_function(check_no_more_suitable_merge_candidate)
 
 def check_one_scc(content, props):
     one_scc = False
@@ -88,7 +67,6 @@ def check_one_scc(content, props):
     props['ms_one_scc'] = one_scc
     props['ms_singleton_sccs'] = singleton_sccs
 
-parser.add_function(check_one_scc)
 
 def add_construction_time_score(content, props):
     """
@@ -115,6 +93,20 @@ def add_construction_time_score(content, props):
     if main_loop_max_time is not None and main_loop_max_time != 0 and main_loop_max_time != float('inf'):
         props['score_ms_construction_time'] = log_score(props.get('ms_construction_time'), min_bound=1.0, max_bound=main_loop_max_time)
 
-parser.add_function(add_construction_time_score)
 
-parser.parse()
+class MergeAndShrinkParser(Parser):
+    def __init__(self):
+        Parser.__init__(self)
+
+        self.add_pattern('ms_construction_time', 'Merge-and-shrink algorithm runtime: (.+)s', required=False, type=float)
+        self.add_pattern('ms_atomic_construction_time', 'M&S algorithm timer: (.+)s \(after computation of atomic factors\)', required=False, type=float)
+        self.add_pattern('ms_atomic_construction_time', 't=(.+)s \(after computation of atomic transition systems\)', required=False, type=float)
+        self.add_pattern('ms_memory_delta', 'Final peak memory increase of merge-and-shrink algorithm: (\d+) KB', required=False, type=int)
+        self.add_pattern('ms_main_loop_max_time', 'Main loop max time in seconds: (\d+)', required=False, type=int)
+
+        self.add_function(check_ms_constructed)
+        self.add_function(check_atomic_fts_constructed)
+        self.add_function(check_planner_exit_reason)
+        self.add_function(check_reached_time_limit)
+        self.add_function(check_one_scc)
+        self.add_function(add_construction_time_score)

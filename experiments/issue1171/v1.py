@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-import itertools
 import os
 from pathlib import Path
 
@@ -12,26 +11,30 @@ from downward.reports.compare import ComparativeReport
 
 import common_setup
 from common_setup import IssueConfig, IssueExperiment
+from ms_parser import MergeAndShrinkParser
 
-ARCHIVE_PATH = "sieverss/scp-ms"
-DIR = os.path.dirname(os.path.abspath(__file__))
-SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
-BENCHMARKS_DIR = os.environ['DOWNWARD_BENCHMARKS']
-REVISION='676b175bd3a388931ca581cfad9139c0e1f1c78f'
-REVISIONS = [REVISION]
+ISSUE = "issue1171"
+ARCHIVE_PATH = f"ai/downward/{ISSUE}"
+BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
+REVISION = f"{ISSUE}-v1"
+REVISIONS = [
+    REVISION,
+]
 CONFIGS = []
 for strat_name, strat_cmd in [
     ('sccdfp', 'scoring_functions=[goal_relevance(),dfp(),total_order(atomic_ts_order=reverse_level,product_ts_order=new_to_old,atomic_before_product=false)]'),
     ('sccsbmiasm', 'scoring_functions=[sf_miasm(shrink_strategy=shrink_bisimulation(greedy=false),max_states=50000,threshold_before_merge=1),total_order(atomic_ts_order=reverse_level,product_ts_order=new_to_old,atomic_before_product=false,random_seed=2016)]')]:
-	for allowall in [False, True]:
-		name = strat_name
-		if allowall:
-			name += ":allowall"
+    for allowall in [False, True]:
+        name = strat_name
+        if allowall:
+            name += ":allowall"
+        else:
+            name += ":!allowall"
 
-		CONFIGS.append(IssueConfig(f'b50k-t900-{name}-mas', ['--search', f'astar(merge_and_shrink(shrink_strategy=shrink_bisimulation(greedy=false),label_reduction=exact(before_shrinking=true,before_merging=false),merge_strategy=merge_sccs(allow_working_on_all_clusters={allowall},order_of_sccs=topological,merge_selector=score_based_filtering({strat_cmd})),max_states=50K,threshold_before_merge=1,main_loop_max_time=900),verbosity=silent)']))
-
+        CONFIGS.append(IssueConfig(f'b50k-t900-{name}', ['--search', f'astar(merge_and_shrink(shrink_strategy=shrink_bisimulation(greedy=false),label_reduction=exact(before_shrinking=true,before_merging=false),merge_strategy=merge_sccs(allow_working_on_all_clusters={allowall},order_of_sccs=topological,merge_selector=score_based_filtering({strat_cmd})),max_states=50K,threshold_before_merge=1,main_loop_max_time=900),verbosity=silent)']))
 
 SUITE = common_setup.DEFAULT_OPTIMAL_SUITE
+# TODO: adapt to new grid
 ENVIRONMENT = BaselSlurmEnvironment(
     partition="infai_3",
     email="silvan.sievers@unibas.ch",
@@ -62,11 +65,11 @@ exp.add_parser(exp.EXITCODE_PARSER)
 exp.add_parser(exp.TRANSLATOR_PARSER)
 exp.add_parser(exp.SINGLE_SEARCH_PARSER)
 exp.add_parser(exp.PLANNER_PARSER)
-
-exp.add_parser('ms-parser.py')
+exp.add_parser(MergeAndShrinkParser())
 
 exp.add_step('build', exp.build)
 exp.add_step('start', exp.start_runs)
+exp.add_step("parse", exp.parse)
 exp.add_fetcher(name='fetch')
 
 extra_attributes=[
@@ -81,13 +84,6 @@ extra_attributes=[
     Attribute('ms_out_of_time', absolute=True, min_wins=True),
     Attribute('ms_memory_delta', absolute=False, min_wins=True),
     Attribute('ms_reached_time_limit', absolute=False, min_wins=True),
-
-    Attribute('ms_interleaved_cps_num_cps', absolute=True, min_wins=True),
-    Attribute('ms_interleaved_cps_num_abs_per_cp', absolute=True, min_wins=True),
-    Attribute('ms_offline_cps_num_abs', absolute=True, min_wins=True),
-    Attribute('ms_label_group_infinite_hvalue', absolute=True, min_wins=True),
-    Attribute('ms_dead_label_group', absolute=True, min_wins=True),
-    Attribute('ms_scps_num_cps', absolute=True, min_wins=True),
     Attribute('ms_one_scc', absolute=True, min_wins=True),
     Attribute('ms_singleton_sccs', absolute=True, min_wins=True),
 ]
@@ -95,15 +91,25 @@ attributes = list(exp.DEFAULT_TABLE_ATTRIBUTES)
 attributes.extend(extra_attributes)
 
 algo_nicks = [f'{REVISION}-{config.nick}' for config in CONFIGS]
-
-report_name = 'absolute-mas'
+report_name = 'absolute'
 report_file = Path(exp.eval_dir) / f"{exp.name}-{report_name}.html"
 exp.add_report(
     AbsoluteReport(
-        filter_algorithm=[
-            algo_nick for algo_nick in algo_nicks if "-mas" in algo_nick
-        ],
-        attributes=attributes
+        filter_algorithm=algo_nicks,
+        attributes=attributes,
+    ),
+    outfile = report_file,
+    name = report_name
+)
+
+algo_nicks_old = [f'{REVISION}-{config.nick}' for config in CONFIGS if ':!allowall' in config.nick]
+algo_nicks_new = [f'{REVISION}-{config.nick}' for config in CONFIGS if ':allowall' in config.nick]
+report_name = 'compare'
+report_file = Path(exp.eval_dir) / f"{exp.name}-{report_name}.html"
+exp.add_report(
+    ComparativeReport(
+        algorithm_pairs=list(zip(algo_nicks_old, algo_nicks_new)),
+        attributes=attributes,
     ),
     outfile = report_file,
     name = report_name
