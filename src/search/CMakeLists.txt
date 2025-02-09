@@ -805,6 +805,7 @@ create_fast_downward_library(
         merge_and_shrink/merge_and_shrink_heuristic
         merge_and_shrink/merge_and_shrink_representation
         merge_and_shrink/merge_scoring_function
+        merge_and_shrink/merge_scoring_function_cp
         merge_and_shrink/merge_scoring_function_dfp
         merge_and_shrink/merge_scoring_function_goal_relevance
         merge_and_shrink/merge_scoring_function_miasm
@@ -824,6 +825,7 @@ create_fast_downward_library(
         merge_and_shrink/merge_tree
         merge_and_shrink/merge_tree_factory
         merge_and_shrink/merge_tree_factory_linear
+        merge_and_shrink/saturated_cost_partitioning_utils
         merge_and_shrink/shrink_bisimulation
         merge_and_shrink/shrink_bucket_based
         merge_and_shrink/shrink_fh
