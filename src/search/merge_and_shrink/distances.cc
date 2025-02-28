@@ -429,7 +429,7 @@ vector<int> compute_goal_distances_for_label_costs(
 
     bool unit_cost = true;
     for (int label_cost : label_costs) {
-        if (label_cost != -1 && label_cost != 1) {
+        if (label_cost != -1 && label_cost != 1) { // only consider non-reduced labels
             unit_cost = false;
             break;
         }

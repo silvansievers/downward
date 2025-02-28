@@ -353,6 +353,7 @@ public:
             "one for each order, and takes the maximum. Note that because the "
             "CP is computed over the *unshrunk* factors, the difference can "
             "actually become positive.");
+        // TODO: update text
         add_option<bool>(
             "use_caching",
             "Cache scores for merge candidates. IMPORTANT! This only works "
@@ -363,6 +364,7 @@ public:
             "over merge-and-shrink iterations. If caching is enabled, only the "
             "scores for the new merge candidates need to be computed.",
             "true");
+        // TODO: document paper
 
         // TODO: use shrink strategy and limit options from MergeAndShrinkHeuristic
         // instead of having the identical options here again.
