@@ -76,8 +76,11 @@ void Distances::compute_init_distances_unit_cost() {
     breadth_first_search(forward_graph, queue, init_distances);
 }
 
-void Distances::compute_goal_distances_unit_cost() {
-    vector<vector<int>> backward_graph(get_num_states());
+static void _compute_goal_distances_unit_cost(
+    const TransitionSystem &transition_system, vector<int> &distances) {
+    int num_states = transition_system.get_size();
+
+    vector<vector<int>> backward_graph(num_states);
     for (const LocalLabelInfo &local_label_info : transition_system) {
         const vector<Transition> &transitions = local_label_info.get_transitions();
         for (const Transition &transition : transitions) {
@@ -86,13 +89,17 @@ void Distances::compute_goal_distances_unit_cost() {
     }
 
     deque<int> queue;
-    for (int state = 0; state < get_num_states(); ++state) {
+    for (int state = 0; state < num_states; ++state) {
         if (transition_system.is_goal_state(state)) {
-            goal_distances[state] = 0;
+            distances[state] = 0;
             queue.push_back(state);
         }
     }
-    breadth_first_search(backward_graph, queue, goal_distances);
+    breadth_first_search(backward_graph, queue, distances);
+}
+
+void Distances::compute_goal_distances_unit_cost() {
+    _compute_goal_distances_unit_cost(transition_system, goal_distances);
 }
 
 static void dijkstra_search(
@@ -143,6 +150,16 @@ void Distances::compute_init_distances_general_cost() {
     dijkstra_search(forward_graph, queue, init_distances);
 }
 
+static void initialize_backward_dijkstra_search(
+    const TransitionSystem &transition_system, priority_queues::AdaptiveQueue<int> &queue, vector<int> &goal_distances) {
+    for (int state = 0; state < transition_system.get_size(); ++state) {
+        if (transition_system.is_goal_state(state)) {
+            goal_distances[state] = 0;
+            queue.push(0, state);
+        }
+    }
+}
+
 void Distances::compute_goal_distances_general_cost() {
     vector<vector<pair<int, int>>> backward_graph(get_num_states());
     for (const LocalLabelInfo &local_label_info : transition_system) {
@@ -157,12 +174,7 @@ void Distances::compute_goal_distances_general_cost() {
     // TODO: Reuse the same queue for multiple computations to save speed?
     //       Also see compute_init_distances_general_cost.
     priority_queues::AdaptiveQueue<int> queue;
-    for (int state = 0; state < get_num_states(); ++state) {
-        if (transition_system.is_goal_state(state)) {
-            goal_distances[state] = 0;
-            queue.push(0, state);
-        }
-    }
+    initialize_backward_dijkstra_search(transition_system, queue, goal_distances);
     dijkstra_search(backward_graph, queue, goal_distances);
 }
 
@@ -379,30 +391,7 @@ void Distances::statistics(utils::LogProxy &log) const {
 }
 
 
-
-static void compute_goal_distances_unit_cost(
-    const TransitionSystem &transition_system, vector<int> &distances) {
-    int num_states = transition_system.get_size();
-
-    vector<vector<int>> backward_graph(num_states);
-    for (const LocalLabelInfo &local_label_info : transition_system) {
-        const vector<Transition> &transitions = local_label_info.get_transitions();
-        for (const Transition &transition : transitions) {
-            backward_graph[transition.target].push_back(transition.src);
-        }
-    }
-
-    deque<int> queue;
-    for (int state = 0; state < num_states; ++state) {
-        if (transition_system.is_goal_state(state)) {
-            distances[state] = 0;
-            queue.push_back(state);
-        }
-    }
-    breadth_first_search(backward_graph, queue, distances);
-}
-
-static void compute_goal_distances_general_cost(
+static void compute_goal_distances_general_cost_for_label_costs(
     const TransitionSystem &transition_system,
     const vector<int> &label_costs,
     vector<int> &distances) {
@@ -424,19 +413,12 @@ static void compute_goal_distances_general_cost(
         }
     }
 
-    // TODO: Reuse the same queue for multiple computations to save speed?
-    //       Also see compute_init_distances_general_cost.
     priority_queues::AdaptiveQueue<int> queue;
-    for (int state = 0; state < num_states; ++state) {
-        if (transition_system.is_goal_state(state)) {
-            distances[state] = 0;
-            queue.push(0, state);
-        }
-    }
+    initialize_backward_dijkstra_search(transition_system, queue, distances);
     dijkstra_search(backward_graph, queue, distances);
 }
 
-vector<int> compute_goal_distances(
+vector<int> compute_goal_distances_for_label_costs(
     const TransitionSystem &transition_system,
     const vector<int> &label_costs,
     utils::LogProxy &log) {
@@ -458,12 +440,12 @@ vector<int> compute_goal_distances(
         if (log.is_at_least_debug()) {
             log << "Computing distances using unit cost" << endl;
         }
-        compute_goal_distances_unit_cost(transition_system, distances);
+        _compute_goal_distances_unit_cost(transition_system, distances);
     } else {
         if (log.is_at_least_debug()) {
             log << "Computing distances using general cost" << endl;
         }
-        compute_goal_distances_general_cost(transition_system, label_costs, distances);
+        compute_goal_distances_general_cost_for_label_costs(transition_system, label_costs, distances);
     }
     return distances;
 }

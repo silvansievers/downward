@@ -66,7 +66,7 @@ static vector<vector<int>> compute_scp_h_values(
             log << "Remaining label costs: " << label_costs << endl;
         }
 
-        vector<int> goal_distances = compute_goal_distances(
+        vector<int> goal_distances = compute_goal_distances_for_label_costs(
             transition_system, label_costs, log);
         if (log.is_at_least_debug()) {
             log << "Distances under remaining costs: " << goal_distances << endl;

@@ -87,7 +87,7 @@ public:
     void statistics(utils::LogProxy &log) const;
 };
 
-extern std::vector<int> compute_goal_distances(
+extern std::vector<int> compute_goal_distances_for_label_costs(
     const TransitionSystem &transition_system,
     const std::vector<int> &label_costs,
     utils::LogProxy &log);
